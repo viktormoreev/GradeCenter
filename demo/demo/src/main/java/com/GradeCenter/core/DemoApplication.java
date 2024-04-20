@@ -1,4 +1,4 @@
-package com.GradeCenter.demo;
+package com.GradeCenter.core;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
