@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
+@Table(name = "schools")
 public class School extends IdGenerator{
 
     @Column
@@ -22,6 +23,6 @@ public class School extends IdGenerator{
     @OneToOne(mappedBy = "school")
     private Director director;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "school")
     private List<Teacher> teachers;
 }

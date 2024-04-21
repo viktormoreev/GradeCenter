@@ -1,8 +1,6 @@
 package com.GradeCenter.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
@@ -13,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
+@Table(name = "subjects")
 public class Subject extends IdGenerator{
 
     @Column
@@ -23,4 +22,11 @@ public class Subject extends IdGenerator{
 
     @OneToMany(mappedBy = "course")
     private List<Grade> grades;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<Teacher> teachers;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<StudyGroup> studyGroups;
+
 }

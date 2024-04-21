@@ -1,11 +1,10 @@
 package com.GradeCenter.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -13,9 +12,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
-public class Director extends User{
+@Table(name = "directors")
+public class Director extends IdGenerator {
 
-    @OneToOne(mappedBy = "director")
+    @OneToOne(fetch = FetchType.LAZY)
     private School school;
 
 }

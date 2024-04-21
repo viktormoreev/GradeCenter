@@ -1,5 +1,6 @@
 package com.GradeCenter.entity;
 
+import com.GradeCenter.enums.Weekday;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,15 +10,19 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
-@Table(name = "grades")
-public class Grade extends IdGenerator{
+@Table(name = "weekly_schedule")
+public class WeeklySchedule extends IdGenerator{
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Student student;
+    private StudyGroup schoolClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Subject course;
+    private Subject subject;
 
-    @Column
-    private double grade;
+    @Enumerated
+    private Weekday day;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private SchoolHour startHour;
+
 }

@@ -3,7 +3,6 @@ package com.GradeCenter.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 
 @Entity
 @Getter
@@ -11,15 +10,19 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
-public class SchoolClass extends IdGenerator {
+@Table(name = "credentials")
+public class Credentials extends IdGenerator{
 
     @Column
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private School school;
+    @Column(unique = true)
+    private String username;
 
-    @OneToMany(mappedBy = "schoolClass")
-    private List<Subject> subjects;
+    @Column
+    private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Role role;
 
 }
