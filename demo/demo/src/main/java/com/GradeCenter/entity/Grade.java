@@ -16,7 +16,7 @@ public class Grade extends IdGenerator{
     private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Subject course;
+    private Course course;
 
     @Column
     private double grade;

@@ -14,7 +14,7 @@ import java.util.List;
 public class Teacher extends IdGenerator {
 
     @ManyToMany(mappedBy = "teachers")
-    private List<Subject> subjects;
+    private List<Course> courses;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private School school;

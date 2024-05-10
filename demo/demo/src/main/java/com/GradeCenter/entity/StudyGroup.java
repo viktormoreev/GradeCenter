@@ -21,7 +21,7 @@ public class StudyGroup extends IdGenerator {
     private School school;
 
     @ManyToMany(mappedBy = "studyGroups")
-    private List<Subject> subjects;
+    private List<Course> courses;
 
     @OneToMany(mappedBy = "classes")
     private List<Student> students;

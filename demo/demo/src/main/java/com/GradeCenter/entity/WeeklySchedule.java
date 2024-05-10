@@ -17,7 +17,7 @@ public class WeeklySchedule extends IdGenerator{
     private StudyGroup schoolClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Subject subject;
+    private Course course;
 
     @Enumerated
     private Weekday day;

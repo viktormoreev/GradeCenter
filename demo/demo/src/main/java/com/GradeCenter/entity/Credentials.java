@@ -22,7 +22,4 @@ public class Credentials extends IdGenerator{
     @Column
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Role role;
-
 }

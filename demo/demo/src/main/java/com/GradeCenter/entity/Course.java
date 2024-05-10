@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
-@Table(name = "subjects")
-public class Subject extends IdGenerator{
+@Table(name = "courses")
+public class Course extends IdGenerator{
 
     @Column
     private String name;
