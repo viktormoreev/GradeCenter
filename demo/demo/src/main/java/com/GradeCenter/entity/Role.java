@@ -1,8 +1,6 @@
 package com.GradeCenter.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -12,8 +10,13 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "roles")
-public class Role extends IdGenerator{
+public class Role{
 
-    @Column
-    private String name;
+    @Id
+    @Column(name = "Credentials ID")
+    private Long credentialsId;
+
+    @Id
+    @Column(name = "Role")
+    private String role;
 }
