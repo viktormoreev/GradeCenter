@@ -1,9 +1,6 @@
 package com.GradeCenter.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
@@ -15,7 +12,10 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "parents")
-public class Parent extends IdGenerator {
+public class Parent {
+
+    @Id
+    private Long credentialsId;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Student> students;

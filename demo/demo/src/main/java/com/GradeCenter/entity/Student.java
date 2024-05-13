@@ -12,7 +12,9 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "students")
-public class Student extends IdGenerator {
+public class Student {
+    @Id
+    private Long credentialsId;
 
     @ManyToMany(mappedBy = "students")
     private List<Parent> parents;

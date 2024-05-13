@@ -1,9 +1,6 @@
 package com.GradeCenter.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -13,7 +10,9 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "directors")
-public class Director extends IdGenerator {
+public class Director{
+    @Id
+    private Long credentialsId;
 
     @OneToOne(fetch = FetchType.LAZY)
     private School school;

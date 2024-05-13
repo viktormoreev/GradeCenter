@@ -12,14 +12,10 @@ import lombok.*;
 @Builder
 @Table(name = "credentials")
 public class Credentials extends IdGenerator{
-
     @Column
     private String name;
-
     @Column(unique = true)
     private String username;
-
     @Column
     private String password;
-
 }
