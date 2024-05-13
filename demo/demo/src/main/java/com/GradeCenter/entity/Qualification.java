@@ -11,17 +11,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
-@Table(name = "teachers")
-public class Teacher {
-    @Id
-    private Long credentialsId;
+@Table(name = "qualifications")
+public class Qualification extends IdGenerator{
 
-    @ManyToMany(mappedBy = "teachers")
-    private List<Course> courses;
+    @Column(name = "area")
+    private String area;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private School school;
-
-    @ManyToMany(mappedBy = "teachers")
-    private List<Qualification> qualifications;
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<Teacher> teachers;
 }
