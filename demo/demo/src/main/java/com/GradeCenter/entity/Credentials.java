@@ -33,6 +33,16 @@ public class Credentials extends IdGenerator implements UserDetails{
     }
 
     @Override
+    public String getPassword() {
+        return "";
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
+    }
+
+    @Override
     public boolean isAccountNonExpired() {
         return true;
     }

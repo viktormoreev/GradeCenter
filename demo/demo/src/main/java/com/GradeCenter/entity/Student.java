@@ -17,6 +17,9 @@ public class Student extends IdGenerator{
     @ManyToMany(mappedBy = "students")
     private List<Parent> parents;
 
+    @OneToOne
+    private Credentials credentials;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private StudyGroup classes;
 
