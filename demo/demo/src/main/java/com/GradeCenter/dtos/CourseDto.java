@@ -1,5 +1,6 @@
 package com.GradeCenter.dtos;
 
+import com.GradeCenter.entity.Course;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

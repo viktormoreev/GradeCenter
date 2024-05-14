@@ -18,7 +18,7 @@ public class CourseController {
     CourseService courseService;
 
     @PostMapping
-    public ResponseEntity<Course> addCourse(@Valid @RequestBody Course course){
+    public ResponseEntity<CourseDto> addCourse(@Valid @RequestBody Course course){
         return ResponseEntity.ok(courseService.saveSubject(course));
     }
 
@@ -32,6 +32,17 @@ public class CourseController {
     public ResponseEntity<CourseDto> fetchCourseById(@PathVariable("id") Long courseId){
         CourseDto course = courseService.fetchCourseById(courseId);
         return ResponseEntity.ok(course);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CourseDto> updateCourseById(@PathVariable("id") Long courseId){
+        return ResponseEntity.ok(courseService.updateCourseById(courseId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCourseById(@PathVariable("id")Long companyId){
+        courseService.deleteCourseById(companyId);
+        return ResponseEntity.ok("Course was successfully deleted!");
     }
 
 
