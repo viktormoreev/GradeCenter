@@ -29,4 +29,7 @@ public class Course extends IdGenerator{
     @ManyToMany(fetch = FetchType.LAZY)
     private List<StudyGroup> studyGroups;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private CourseType courseType;
+
 }

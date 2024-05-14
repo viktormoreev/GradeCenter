@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "parents")
-public class Parent {
+public class Parent extends IdGenerator{
 
     @Id
     private Long credentialsId;

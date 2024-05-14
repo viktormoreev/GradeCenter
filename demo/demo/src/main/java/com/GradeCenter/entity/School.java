@@ -20,7 +20,7 @@ public class School extends IdGenerator{
     @Column
     private String address;
 
-    @OneToOne(mappedBy = "school")
+    @OneToOne(fetch = FetchType.LAZY)
     private Director director;
 
     @OneToMany(mappedBy = "school")

@@ -10,11 +10,9 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "directors")
-public class Director{
-    @Id
-    private Long credentialsId;
+public class Director extends IdGenerator{
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "director")
     private School school;
 
 }

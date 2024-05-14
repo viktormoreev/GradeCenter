@@ -2,6 +2,11 @@ package com.GradeCenter.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 
 @Entity
@@ -11,11 +16,39 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "credentials")
-public class Credentials extends IdGenerator{
+public class Credentials extends IdGenerator implements UserDetails{
     @Column
     private String name;
     @Column(unique = true)
     private String username;
     @Column
     private String password;
+
+    @ManyToMany(mappedBy = "credentialsList")
+    private List<Role> roleList;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
