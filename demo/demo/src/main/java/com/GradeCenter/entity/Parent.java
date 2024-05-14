@@ -14,9 +14,6 @@ import java.util.List;
 @Table(name = "parents")
 public class Parent extends IdGenerator{
 
-    @Id
-    private Long credentialsId;
-
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Student> students;
 
