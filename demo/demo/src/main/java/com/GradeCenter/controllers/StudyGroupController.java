@@ -1,6 +1,7 @@
 package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.CourseDto;
+import com.GradeCenter.dtos.StudyGroupDto;
 import com.GradeCenter.entity.StudyGroup;
 import com.GradeCenter.service.StudyGroupService;
 import jakarta.validation.Valid;
@@ -18,30 +19,28 @@ public class StudyGroupController {
     StudyGroupService studyGroupService;
 
     @PostMapping
-    public StudyGroup addStudyGroup(@Valid @RequestBody StudyGroup studyGroup){ // needs to be added to teachers
+    public StudyGroupDto saveStudyGroup(@Valid @RequestBody StudyGroup studyGroup){
         return studyGroupService.saveStudyGroup(studyGroup);
     }
 
     @GetMapping
-    public ResponseEntity<List<CourseDto>> fetchStudyGroupList(){
-        List<CourseDto> courseList = studyGroupService.fetchCourseList();
-        return ResponseEntity.ok(courseList);
+    public ResponseEntity<List<StudyGroupDto>> fetchStudyGroupList(){
+        return ResponseEntity.ok(studyGroupService.fetchStudyGroup());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourseDto> fetchStudyGroupById(@PathVariable("id") Long courseId){
-        CourseDto course = courseService.fetchCourseById(courseId);
-        return ResponseEntity.ok(course);
+    public ResponseEntity<StudyGroupDto> fetchStudyGroupById(@PathVariable("id") Long studyGroupId){
+        return ResponseEntity.ok(studyGroupService.fetchStudyGroupById(studyGroupId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CourseDto> updateStudyGroupById(@PathVariable("id") Long courseId){
-        return ResponseEntity.ok(courseService.updateCourseById(courseId));
+    public ResponseEntity<StudyGroupDto> updateStudyGroupById(@PathVariable("id") Long studyGroupId){
+        return ResponseEntity.ok(studyGroupService.updateStudyGroupById(studyGroupId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteStudyGroupById(@PathVariable("id")Long companyId){
-        courseService.deleteCourseById(companyId);
+    public ResponseEntity<String> deleteStudyGroupById(@PathVariable("id")Long studyGroupId){
+        studyGroupService.deleteStudyGroupById(studyGroupId);
         return ResponseEntity.ok("Course was successfully deleted!");
     }
 
