@@ -34,5 +34,5 @@ public class TeacherController {
         TeacherDto teacherDto = teacherService.fetchTeacherById(teacherId);
         return ResponseEntity.ok(teacherDto);
     }
-    
+
 }
