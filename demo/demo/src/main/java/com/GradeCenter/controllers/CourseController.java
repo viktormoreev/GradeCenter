@@ -19,7 +19,7 @@ public class CourseController {
 
     @PostMapping
     public ResponseEntity<CourseDto> addCourse(@Valid @RequestBody Course course){
-        return ResponseEntity.ok(courseService.saveSubject(course));
+        return ResponseEntity.ok(courseService.saveCourse(course));
     }
 
     @GetMapping

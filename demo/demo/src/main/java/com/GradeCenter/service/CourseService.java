@@ -8,7 +8,7 @@ import java.util.List;
 public interface CourseService {
     List<CourseDto> fetchCourseList();
 
-    CourseDto saveSubject(Course course);
+    CourseDto saveCourse(Course course);
 
     CourseDto fetchCourseById(Long courseId);
 

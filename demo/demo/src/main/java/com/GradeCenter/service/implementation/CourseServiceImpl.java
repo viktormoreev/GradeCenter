@@ -26,7 +26,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseDto saveSubject(Course course) {
+    public CourseDto saveCourse(Course course) {
         return entityMapper.mapToCourseDto(courseRepository.save(course));
     }
 
