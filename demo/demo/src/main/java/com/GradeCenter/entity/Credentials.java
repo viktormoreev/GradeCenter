@@ -10,8 +10,7 @@ import java.util.List;
 
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
@@ -61,4 +60,13 @@ public class Credentials extends IdGenerator implements UserDetails{
     public boolean isEnabled() {
         return true;
     }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
 }
