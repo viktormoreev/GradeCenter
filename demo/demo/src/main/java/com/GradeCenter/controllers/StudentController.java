@@ -28,27 +28,36 @@ public class StudentController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('student')")
-    public ResponseEntity<StudentDto> getStudentByUserId() {
+    public ResponseEntity<StudentDto> getPersonalStudent() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
 
         Optional<StudentDto> student = studentService.getStudentByUId(userId);
+        if (student.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         return student.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<StudentDto> getStudentById(@PathVariable("id") Long id) {
         Optional<StudentDto> student = studentService.getStudentById(id);
+        if (student.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         return student.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<StudentDto> getStudentByUId(@PathVariable("id") String userID) {
         Optional<StudentDto> student = studentService.getStudentByUId(userID);
+        if (student.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         return student.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -60,18 +69,8 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<String> deleteStudentUid(@PathVariable("id") String userID) {
-        ResponseEntity<String> response = studentService.deleteStudentUID(userID);
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return ResponseEntity.ok("Student deleted successfully");
-        } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete student");
-        }
-    }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteStudentId(@PathVariable("id") Long id) {
         ResponseEntity<String> response = studentService.deleteStudentID(id);
@@ -82,9 +81,21 @@ public class StudentController {
         }
     }
 
-    @PutMapping("/{id}")
+    @DeleteMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<StudentDto> updateStudent(@PathVariable("id") Long id, @RequestBody StudentDto studentDto) {
+    public ResponseEntity<String> deleteStudentUID(@PathVariable("id") String userID) {
+        ResponseEntity<String> response = studentService.deleteStudentUID(userID);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok("Student deleted successfully");
+        } else {
+            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete student");
+        }
+    }
+
+
+    @PutMapping("/id={id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<StudentDto> updateStudentID(@PathVariable("id") Long id, @RequestBody StudentDto studentDto) {
         Optional<StudentDto> response = studentService.updateStudentID(id, studentDto);
         if (response.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -92,9 +103,9 @@ public class StudentController {
         return ResponseEntity.ok(studentDto);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<StudentDto> updateStudent(@PathVariable("id") String userID, @RequestBody StudentDto studentDto) {
+    public ResponseEntity<StudentDto> updateStudentUID(@PathVariable("id") String userID, @RequestBody StudentDto studentDto) {
         Optional<StudentDto> response = studentService.updateStudentUID(userID, studentDto);
         if (response.isEmpty()) {
             return ResponseEntity.notFound().build();

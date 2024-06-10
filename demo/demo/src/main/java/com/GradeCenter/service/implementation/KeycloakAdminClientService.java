@@ -1,6 +1,5 @@
 package com.GradeCenter.service.implementation;
 
-import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.StudentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +133,7 @@ public class KeycloakAdminClientService {
             HttpEntity<Map<String, Object>[]> requestEntity = new HttpEntity<>(roles, headers);
             restTemplate.postForEntity(assignRoleUrl, requestEntity, String.class);
 
-            switch (roleName) {
+            /*switch (roleName) {
                 case "student":
                     studentService.addStudent(new UserIDRequest(userId));
                     break;
@@ -148,7 +147,7 @@ public class KeycloakAdminClientService {
                     studentService.addAdmin(new UserIDRequest(userId));
                     break;
 
-            }
+            }*/
 
         } catch (Exception e) {
             logger.error("Error assigning role: {}", e.getMessage(), e);
