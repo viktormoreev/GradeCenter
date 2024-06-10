@@ -7,7 +7,7 @@
 /dataSources/
 /dataSources.local.xml
 # Ignore Gradle build folder
-.gradle/g
+.gradle/
 build/
 
 # Ignore IntelliJ IDEA files
