@@ -46,7 +46,6 @@ public class UserController {
         }
     }
 
-
     @PostMapping("/assign-role-student")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> assignRoleStudent(@RequestBody UserAssignRoleRequest userAssignRoleRequest) {

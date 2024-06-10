@@ -69,7 +69,6 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
-
     @DeleteMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteStudentId(@PathVariable("id") Long id) {
