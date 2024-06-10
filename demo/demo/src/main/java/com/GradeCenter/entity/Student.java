@@ -14,11 +14,11 @@ import java.util.List;
 @Table(name = "students")
 public class Student extends IdGenerator{
 
+    @Column
+    private String userID;
+
     @ManyToMany(mappedBy = "students")
     private List<Parent> parents;
-
-    @OneToOne
-    private Credentials credentials;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private StudyGroup classes;
