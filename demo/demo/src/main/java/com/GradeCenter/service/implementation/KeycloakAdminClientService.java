@@ -150,10 +150,6 @@ public class KeycloakAdminClientService {
 
             }
 
-
-
-
-
         } catch (Exception e) {
             logger.error("Error assigning role: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to assign role", e);

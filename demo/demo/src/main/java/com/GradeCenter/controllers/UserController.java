@@ -36,7 +36,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserAuthorizationRequest userAuthorizationRequest) {
         ResponseEntity<String> response = keycloakAdminClientService.loginUser(userAuthorizationRequest.getUsername(), userAuthorizationRequest.getPassword());
         if (response.getStatusCode().is2xxSuccessful()) {
