@@ -92,7 +92,6 @@ public class StudentController {
         }
     }
 
-
     @PutMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<StudentDto> updateStudentID(@PathVariable("id") Long id, @RequestBody StudentDto studentDto) {
@@ -112,6 +111,4 @@ public class StudentController {
         }
         return ResponseEntity.ok(studentDto);
     }
-
-
 }
