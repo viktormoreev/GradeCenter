@@ -1,7 +1,10 @@
 package com.GradeCenter.service.implementation;
 
+import com.GradeCenter.dtos.UserIDRequest;
+import com.GradeCenter.service.StudentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,9 @@ public class KeycloakAdminClientService {
 
     private final RestTemplate restTemplate;
 
+    @Autowired
+    private StudentService studentService;
+
     public KeycloakAdminClientService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -41,7 +47,7 @@ public class KeycloakAdminClientService {
     * The response from the server is returned as a ResponseEntity<String>.
      */
 
-    public ResponseEntity<String> createUser(String username, String password, String email) {
+    public ResponseEntity<String> createUser(String username, String password) {
         logger.info("Creating user: {}", username);
 
         try {
@@ -52,7 +58,6 @@ public class KeycloakAdminClientService {
             String createUserUrl = String.format("%s/admin/realms/%s/users", keycloakAdminUrl, keycloakRealm);
             Map<String, Object> user = Map.of(
                     "username", username,
-                    "email", email,
                     "enabled", true,
                     "credentials", Collections.singletonList(Map.of(
                             "type", "password",
@@ -109,29 +114,45 @@ public class KeycloakAdminClientService {
             logger.debug("Adding role {} to user {}", roleName, userId);
             HttpHeaders headers = createHeadersWithToken(token);
 
-            // Step 1: Get the role details
             String roleUrl = String.format("%s/admin/realms/%s/roles/%s", keycloakAdminUrl, keycloakRealm, roleName);
             ResponseEntity<Map> roleResponse = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
 
-            if (roleResponse.getStatusCode().is2xxSuccessful()) {
-                Map<String, Object> role = roleResponse.getBody();
-                String roleId = (String) role.get("id");
-
-                // Step 2: Prepare the role representation array
-                Map<String, Object> roleRepresentation = new HashMap<>();
-                roleRepresentation.put("id", roleId);
-                roleRepresentation.put("name", roleName);
-                Map<String, Object>[] roles = new Map[]{roleRepresentation};
-
-                // Step 3: Assign the role to the user
-                String assignRoleUrl = String.format("%s/admin/realms/%s/users/%s/role-mappings/realm", keycloakAdminUrl, keycloakRealm, userId);
-                HttpEntity<Map<String, Object>[]> requestEntity = new HttpEntity<>(roles, headers);
-                restTemplate.postForEntity(assignRoleUrl, requestEntity, String.class);
-
-            } else {
+            if (!roleResponse.getStatusCode().is2xxSuccessful()) {
                 logger.error("Failed to get role: HTTP Status {}", roleResponse.getStatusCode());
                 throw new RuntimeException("Failed to get role: " + roleResponse.getStatusCode());
             }
+
+            Map<String, Object> role = roleResponse.getBody();
+            String roleId = (String) role.get("id");
+
+            Map<String, Object> roleRepresentation = new HashMap<>();
+            roleRepresentation.put("id", roleId);
+            roleRepresentation.put("name", roleName);
+            Map<String, Object>[] roles = new Map[]{roleRepresentation};
+
+            String assignRoleUrl = String.format("%s/admin/realms/%s/users/%s/role-mappings/realm", keycloakAdminUrl, keycloakRealm, userId);
+            HttpEntity<Map<String, Object>[]> requestEntity = new HttpEntity<>(roles, headers);
+            restTemplate.postForEntity(assignRoleUrl, requestEntity, String.class);
+
+            switch (roleName) {
+                case "student":
+                    studentService.addStudent(new UserIDRequest(userId));
+                    break;
+                case "parent":
+                    studentService.addParent(new UserIDRequest(userId));
+                    break;
+                case "teacher":
+                    studentService.addTeacher(new UserIDRequest(userId));
+                    break;
+                case "admin":
+                    studentService.addAdmin(new UserIDRequest(userId));
+                    break;
+
+            }
+
+
+
+
 
         } catch (Exception e) {
             logger.error("Error assigning role: {}", e.getMessage(), e);

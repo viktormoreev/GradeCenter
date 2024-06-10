@@ -1,9 +1,11 @@
 package com.GradeCenter.controllers;
 
+import com.GradeCenter.dtos.UserAssignRoleRequest;
 import com.GradeCenter.dtos.UserAuthorizationRequest;
 import com.GradeCenter.dtos.UserRegistrationRequest;
 import com.GradeCenter.service.implementation.KeycloakAdminClientService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +27,9 @@ public class UserController {
     //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest request) {
 
-        ResponseEntity<String> response = keycloakAdminClientService.createUser(request.getUsername(), request.getPassword(), request.getEmail());
+        ResponseEntity<String> response = keycloakAdminClientService.createUser(request.getUsername(), request.getPassword());
         if (response.getStatusCode().is2xxSuccessful()) {
             String userId = extractUserIdFromLocationHeader(response.getHeaders().getLocation());
-            keycloakAdminClientService.assignRole(userId, request.getRole());
             return ResponseEntity.ok("User registered successfully");
         } else {
             return ResponseEntity.status(response.getStatusCode()).body("Failed to register user");
@@ -45,20 +46,20 @@ public class UserController {
         }
     }
 
-    /*
+
     @PostMapping("/assign-role-student")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<String> assignRoleStudent(@RequestBody UserAssignRoleTeacherRequest userAssignRoleRequest) {
+    public ResponseEntity<String> assignRoleStudent(@RequestBody UserAssignRoleRequest userAssignRoleRequest) {
         ResponseEntity<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
         if (response.getStatusCode().is2xxSuccessful()) {
-            return ResponseEntity.ok("Role assigned successfully");
 
-            // Add the corresponding entity in the database
+
+            return ResponseEntity.ok("Role assigned successfully");
 
         } else {
             return ResponseEntity.status(response.getStatusCode()).body("Failed to assign role");
         }
-    }*/
+    }
 
     /* Test controller, will remove later */
     @GetMapping("/roles")
