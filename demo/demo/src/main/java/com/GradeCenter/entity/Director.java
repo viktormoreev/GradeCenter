@@ -12,8 +12,8 @@ import lombok.*;
 @Table(name = "directors")
 public class Director extends IdGenerator{
 
-    @OneToOne
-    private Credentials credentials;
+    @Column
+    private String userID;
 
     @OneToOne(mappedBy = "director")
     private School school;
