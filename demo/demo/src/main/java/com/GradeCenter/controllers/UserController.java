@@ -51,7 +51,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/assign-role-student")
+    @PostMapping("/assign-role")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> assignRoleStudent(@RequestBody UserAssignRoleRequest userAssignRoleRequest) {
         ResponseEntity<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());

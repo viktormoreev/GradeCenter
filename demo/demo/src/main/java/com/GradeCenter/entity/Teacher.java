@@ -14,6 +14,9 @@ import java.util.List;
 @Table(name = "teachers")
 public class Teacher extends IdGenerator {
 
+    @Column(name = "user_id", nullable = false, unique = true)
+    private String userID;
+
     @ManyToMany(mappedBy = "teachers")
     private List<Course> courses;
 

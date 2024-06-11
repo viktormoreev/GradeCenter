@@ -1,6 +1,7 @@
 package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.StudentDto;
+import com.GradeCenter.dtos.StudentUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/students")
@@ -32,34 +32,31 @@ public class StudentController {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
 
-        Optional<StudentDto> student = studentService.getStudentByUId(userId);
-        if (student.isEmpty()) {
+        StudentDto student = studentService.getStudentByUId(userId);
+        if (student == null) {
             return ResponseEntity.notFound().build();
         }
-        return student.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(student);
     }
 
     @GetMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<StudentDto> getStudentById(@PathVariable("id") Long id) {
-        Optional<StudentDto> student = studentService.getStudentById(id);
-        if (student.isEmpty()) {
+        StudentDto student = studentService.getStudentById(id);
+        if (student == null) {
             return ResponseEntity.notFound().build();
         }
-        return student.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(student);
     }
 
     @GetMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<StudentDto> getStudentByUId(@PathVariable("id") String userID) {
-        Optional<StudentDto> student = studentService.getStudentByUId(userID);
-        if (student.isEmpty()) {
+        StudentDto student = studentService.getStudentByUId(userID);
+        if (student == null) {
             return ResponseEntity.notFound().build();
         }
-        return student.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(student);
     }
 
     @PostMapping
@@ -72,42 +69,42 @@ public class StudentController {
     @DeleteMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteStudentId(@PathVariable("id") Long id) {
-        ResponseEntity<String> response = studentService.deleteStudentID(id);
-        if (response.getStatusCode().is2xxSuccessful()) {
+        boolean isDeleted = studentService.deleteStudentID(id);
+        if (isDeleted) {
             return ResponseEntity.ok("Student deleted successfully");
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete student");
+            return ResponseEntity.status(404).body("Failed to delete student");
         }
     }
 
     @DeleteMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteStudentUID(@PathVariable("id") String userID) {
-        ResponseEntity<String> response = studentService.deleteStudentUID(userID);
-        if (response.getStatusCode().is2xxSuccessful()) {
+        boolean isDeleted = studentService.deleteStudentUID(userID);
+        if (isDeleted) {
             return ResponseEntity.ok("Student deleted successfully");
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete student");
+            return ResponseEntity.status(404).body("Failed to delete student");
         }
     }
 
     @PutMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<StudentDto> updateStudentID(@PathVariable("id") Long id, @RequestBody StudentDto studentDto) {
-        Optional<StudentDto> response = studentService.updateStudentID(id, studentDto);
-        if (response.isEmpty()) {
+    public ResponseEntity<StudentDto> updateStudentID(@PathVariable("id") Long id, @RequestBody StudentUpdateDto studentDto) {
+        StudentDto updatedStudent = studentService.updateStudentID(id, studentDto);
+        if (updatedStudent == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(studentDto);
+        return ResponseEntity.ok(updatedStudent);
     }
 
     @PutMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<StudentDto> updateStudentUID(@PathVariable("id") String userID, @RequestBody StudentDto studentDto) {
-        Optional<StudentDto> response = studentService.updateStudentUID(userID, studentDto);
-        if (response.isEmpty()) {
+    public ResponseEntity<StudentDto> updateStudentUID(@PathVariable("id") String userID, @RequestBody StudentUpdateDto studentDto) {
+        StudentDto updatedStudent = studentService.updateStudentUID(userID, studentDto);
+        if (updatedStudent == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(studentDto);
+        return ResponseEntity.ok(updatedStudent);
     }
 }

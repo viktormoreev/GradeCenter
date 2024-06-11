@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "parents")
 public class Parent extends IdGenerator{
 
-    @Column
+    @Column(name = "user_id", nullable = false, unique = true)
     private String userID;
 
     @ManyToMany(fetch = FetchType.LAZY)

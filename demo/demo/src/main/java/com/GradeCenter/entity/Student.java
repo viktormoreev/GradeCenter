@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "students")
 public class Student extends IdGenerator{
 
-    @Column
+    @Column(name = "user_id", nullable = false, unique = true)
     private String userID;
 
     @ManyToMany(mappedBy = "students")

@@ -11,9 +11,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParentDto {
+public class StudentUpdateDto {
 
-    String userID;
-    List<Long> studentsID;
-
+    private List<Long> parentsID;
+    private Long classesID;
 }

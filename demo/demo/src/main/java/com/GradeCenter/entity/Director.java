@@ -12,7 +12,7 @@ import lombok.*;
 @Table(name = "directors")
 public class Director extends IdGenerator{
 
-    @Column
+    @Column(name = "user_id", nullable = false, unique = true)
     private String userID;
 
     @OneToOne(mappedBy = "director")

@@ -9,11 +9,12 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class ParentDto {
+@AllArgsConstructor
+public class SchoolDto {
 
-    String userID;
-    List<Long> studentsID;
-
+    private String name;
+    private String address;
+    private Long directorId;
+    private List<Long> teachersId;
 }
