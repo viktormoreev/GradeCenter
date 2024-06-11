@@ -1,22 +1,26 @@
 package com.GradeCenter.service.implementation;
 
+import com.GradeCenter.dtos.UserInfoResponse;
+import com.GradeCenter.dtos.UserUpdateCredentialsRequest;
 import com.GradeCenter.service.StudentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class KeycloakAdminClientService {
 
     private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminClientService.class);
+
+    private static final List<String> VALID_ROLES = Arrays.asList("admin", "director", "teacher", "parent", "student");
 
     @Value("${keycloak.admin.url}")
     private String keycloakAdminUrl;
@@ -80,7 +84,7 @@ public class KeycloakAdminClientService {
     * The response from the server is returned as a ResponseEntity<String>.
      */
 
-    public ResponseEntity<String> loginUser(String username, String password) {
+    public ResponseEntity<Map<String, Object>> loginUser(String username, String password) {
         logger.info("Logging in user: {}", username);
 
         try {
@@ -90,13 +94,55 @@ public class KeycloakAdminClientService {
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
             String body = String.format("grant_type=password&client_id=student-rest-api&username=%s&password=%s",
-                     username, password);
+                    username, password);
 
             HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
-            return restTemplate.exchange(loginUrl, HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(loginUrl, HttpMethod.POST, requestEntity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                String accessToken = extractAccessToken(responseBody);
+                List<String> roles = extractRolesFromToken(accessToken);
+
+                String role = roles.stream()
+                        .filter(VALID_ROLES::contains)
+                        .min((r1, r2) -> Integer.compare(VALID_ROLES.indexOf(r1), VALID_ROLES.indexOf(r2)))
+                        .orElse("unknown");
+
+                Map<String, Object> responseBodyMap = new HashMap<>();
+                responseBodyMap.put("access_token", accessToken);
+                responseBodyMap.put("role", role);
+
+                return ResponseEntity.ok(responseBodyMap);
+            } else {
+                return ResponseEntity.status(response.getStatusCode()).body(null);
+            }
         } catch (Exception e) {
             logger.error("Error logging in user: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to login user", e);
+        }
+    }
+
+    private String extractAccessToken(String responseBody) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> map = mapper.readValue(responseBody, Map.class);
+            return (String) map.get("access_token");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse access token from response", e);
+        }
+    }
+
+    private List<String> extractRolesFromToken(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> payloadMap = mapper.readValue(payload, Map.class);
+            Map<String, Object> realmAccess = (Map<String, Object>) payloadMap.get("realm_access");
+            return (List<String>) realmAccess.get("roles");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract roles from token", e);
         }
     }
 
@@ -180,6 +226,136 @@ public class KeycloakAdminClientService {
             logger.error("Failed to get access token: {}", response.getStatusCode());
             throw new RuntimeException("Failed to get access token: " + response.getStatusCode());
         }
+    }
+
+    public ResponseEntity<String> deleteUser(String userId) {
+        try {
+            String token = getAdminAccessToken();
+            logger.info("Deleting user: {}", userId);
+            HttpHeaders headers = createHeadersWithToken(token);
+
+            String deleteUserUrl = String.format("%s/admin/realms/%s/users/%s", keycloakAdminUrl, keycloakRealm, userId);
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+            restTemplate.exchange(deleteUserUrl, HttpMethod.DELETE, requestEntity, String.class);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (Exception e) {
+            logger.error("Error deleting user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to delete user", e);
+        }
+    }
+
+    /*
+     * Updates a user's credentials in Keycloak
+     */
+    public ResponseEntity<String> updateUserCredentials(UserUpdateCredentialsRequest userUpdateCredentialsRequest) {
+        try {
+            String token = getAdminAccessToken();
+            HttpHeaders headers = createHeadersWithToken(token);
+
+
+            if (userUpdateCredentialsRequest.getUsername() != null && !userUpdateCredentialsRequest.getUsername().isEmpty()) {
+                updateUsername(userUpdateCredentialsRequest.getUserID(), userUpdateCredentialsRequest.getUsername(), headers);
+            }
+
+            if (userUpdateCredentialsRequest.getPassword() != null && !userUpdateCredentialsRequest.getPassword().isEmpty()) {
+                updatePassword(userUpdateCredentialsRequest.getUserID(), userUpdateCredentialsRequest.getPassword(), headers);
+            }
+
+            return ResponseEntity.ok("User credentials updated successfully");
+        } catch (Exception e) {
+            logger.error("Error updating user credentials: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update user credentials", e);
+        }
+    }
+
+    private void updateUsername(String userId, String newUsername, HttpHeaders headers) {
+        try {
+            logger.info("Updating username for user: {}", userId);
+
+            String updateUsernameUrl = String.format("%s/admin/realms/%s/users/%s", keycloakAdminUrl, keycloakRealm, userId);
+            Map<String, Object> user = new HashMap<>();
+            user.put("username", newUsername);
+
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(user, headers);
+            restTemplate.put(updateUsernameUrl, requestEntity);
+
+            logger.info("Username updated successfully for user: {}", userId);
+        } catch (Exception e) {
+            logger.error("Error updating username: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update username", e);
+        }
+    }
+
+    private void updatePassword(String userId, String newPassword, HttpHeaders headers) {
+        try {
+            logger.info("Updating password for user: {}", userId);
+
+            String updatePasswordUrl = String.format("%s/admin/realms/%s/users/%s/reset-password", keycloakAdminUrl, keycloakRealm, userId);
+            Map<String, Object> credential = new HashMap<>();
+            credential.put("type", "password");
+            credential.put("value", newPassword);
+            credential.put("temporary", false);
+
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(credential, headers);
+            restTemplate.put(updatePasswordUrl, requestEntity);
+
+            logger.info("Password updated successfully for user: {}", userId);
+        } catch (Exception e) {
+            logger.error("Error updating password: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update password", e);
+        }
+    }
+
+    /*
+     * Removes a role from a user in Keycloak
+     */
+    public ResponseEntity<String> removeRole(String userId, String roleName) {
+        try {
+            String token = getAdminAccessToken();
+            logger.info("Removing role {} from user {}", roleName, userId);
+            HttpHeaders headers = createHeadersWithToken(token);
+
+            String roleUrl = String.format("%s/admin/realms/%s/roles/%s", keycloakAdminUrl, keycloakRealm, roleName);
+            ResponseEntity<Map> roleResponse = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
+
+            if (!roleResponse.getStatusCode().is2xxSuccessful()) {
+                logger.error("Failed to get role: HTTP Status {}", roleResponse.getStatusCode());
+                throw new RuntimeException("Failed to get role: " + roleResponse.getStatusCode());
+            }
+
+            Map<String, Object> role = roleResponse.getBody();
+            String roleId = (String) role.get("id");
+
+            Map<String, Object> roleRepresentation = new HashMap<>();
+            roleRepresentation.put("id", roleId);
+            roleRepresentation.put("name", roleName);
+            Map<String, Object>[] roles = new Map[]{roleRepresentation};
+
+            String removeRoleUrl = String.format("%s/admin/realms/%s/users/%s/role-mappings/realm", keycloakAdminUrl, keycloakRealm, userId);
+            HttpEntity<Map<String, Object>[]> requestEntity = new HttpEntity<>(roles, headers);
+            restTemplate.exchange(removeRoleUrl, HttpMethod.DELETE, requestEntity, String.class);
+
+            return ResponseEntity.ok("Role removed successfully");
+        } catch (Exception e) {
+            logger.error("Error removing role: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to remove role", e);
+        }
+    }
+
+    public ResponseEntity<UserInfoResponse> getUserInfo(Jwt jwt) {
+        String username = jwt.getClaimAsString("preferred_username");
+        String userId = jwt.getClaimAsString("sub");
+        Map<String, Object> rolesMap = jwt.getClaim("realm_access");
+        List<String> roles = (List<String>) rolesMap.get("roles");
+
+        String role = roles.stream()
+                .filter(VALID_ROLES::contains)
+                .min((r1, r2) -> Integer.compare(VALID_ROLES.indexOf(r1), VALID_ROLES.indexOf(r2)))
+                .orElse("unknown");
+
+        UserInfoResponse userInfoResponse = new UserInfoResponse(username, userId, role);
+        return ResponseEntity.ok(userInfoResponse);
     }
 
 

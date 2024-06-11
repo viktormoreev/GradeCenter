@@ -4,7 +4,6 @@ import com.GradeCenter.dtos.SchoolCreateRequest;
 import com.GradeCenter.dtos.SchoolDto;
 import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.service.SchoolService;
-import com.GradeCenter.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,8 +18,6 @@ public class SchoolController {
     @Autowired
     private SchoolService schoolService;
 
-    @Autowired
-    private TeacherService teacherService;
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
@@ -69,7 +66,7 @@ public class SchoolController {
     @GetMapping("/id={id}/teachers")
     @PreAuthorize("hasAnyRole('admin', 'director')")
     public ResponseEntity<List<TeacherDto>> getTeachersBySchoolId(@PathVariable("id") Long schoolId) {
-        List<TeacherDto> teachers = teacherService.getTeachersBySchoolId(schoolId);
+        List<TeacherDto> teachers = schoolService.getTeachersBySchoolId(schoolId);
         return ResponseEntity.ok(teachers);
     }
 }

@@ -2,6 +2,7 @@ package com.GradeCenter.service;
 
 import com.GradeCenter.dtos.SchoolCreateRequest;
 import com.GradeCenter.dtos.SchoolDto;
+import com.GradeCenter.dtos.TeacherDto;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface SchoolService {
 
     SchoolDto updateSchool(Long id, SchoolDto schoolDto);
 
+    List<TeacherDto> getTeachersBySchoolId(Long schoolId);
 }

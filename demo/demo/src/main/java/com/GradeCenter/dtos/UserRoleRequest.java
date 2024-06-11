@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserAssignRoleRequest {
+public class UserRoleRequest {
 
     String userID;
     String role;

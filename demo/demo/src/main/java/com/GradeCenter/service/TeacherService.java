@@ -23,5 +23,5 @@ public interface TeacherService {
 
     TeacherDto updateTeacherUID(String userID, TeacherUpdateDto teacherUpdateDto);
 
-    List<TeacherDto> getTeachersBySchoolId(Long schoolId);
+
 }

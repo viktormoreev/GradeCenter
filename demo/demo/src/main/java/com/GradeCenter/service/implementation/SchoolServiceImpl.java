@@ -2,6 +2,7 @@ package com.GradeCenter.service.implementation;
 
 import com.GradeCenter.dtos.SchoolCreateRequest;
 import com.GradeCenter.dtos.SchoolDto;
+import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.entity.Director;
 import com.GradeCenter.entity.School;
 import com.GradeCenter.entity.Teacher;
@@ -77,7 +78,10 @@ public class SchoolServiceImpl implements SchoolService {
         return null;
     }
 
-
+    @Override
+    public List<TeacherDto> getTeachersBySchoolId(Long schoolId) {
+        return entityMapper.mapToTeacherListDto(teacherRepository.findBySchoolId(schoolId));
+    }
 
     private void updateSchoolFromDto(School school, SchoolDto schoolUpdateDto) {
         school.setName(schoolUpdateDto.getName());

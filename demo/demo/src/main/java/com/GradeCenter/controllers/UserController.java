@@ -1,9 +1,6 @@
 package com.GradeCenter.controllers;
 
-import com.GradeCenter.dtos.UserAssignRoleRequest;
-import com.GradeCenter.dtos.UserAuthorizationRequest;
-import com.GradeCenter.dtos.UserInfoResponse;
-import com.GradeCenter.dtos.UserRegistrationRequest;
+import com.GradeCenter.dtos.*;
 import com.GradeCenter.service.implementation.KeycloakAdminClientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,8 +9,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,8 +16,6 @@ import java.util.Map;
 public class UserController {
 
     private final KeycloakAdminClientService keycloakAdminClientService;
-
-    private static final List<String> VALID_ROLES = Arrays.asList("admin", "director", "teacher", "parent"  ,"student");
 
     public UserController(KeycloakAdminClientService keycloakAdminClientService) {
         this.keycloakAdminClientService = keycloakAdminClientService;
@@ -42,18 +35,25 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserAuthorizationRequest userAuthorizationRequest) {
-        ResponseEntity<String> response = keycloakAdminClientService.loginUser(userAuthorizationRequest.getUsername(), userAuthorizationRequest.getPassword());
+    public ResponseEntity<Map<String, Object>> login(@RequestBody UserAuthorizationRequest userAuthorizationRequest) {
+        ResponseEntity<Map<String, Object>> response = keycloakAdminClientService.loginUser(userAuthorizationRequest.getUsername(), userAuthorizationRequest.getPassword());
         if (response.getStatusCode().is2xxSuccessful()) {
             return ResponseEntity.ok(response.getBody());
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to login user");
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         }
     }
 
+
+    @GetMapping("/info")
+    public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+        return keycloakAdminClientService.getUserInfo(jwt);
+    }
+
+
     @PostMapping("/assign-role")
-    @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<String> assignRoleStudent(@RequestBody UserAssignRoleRequest userAssignRoleRequest) {
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> assignRoleStudent(@RequestBody UserRoleRequest userAssignRoleRequest) {
         ResponseEntity<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
         if (response.getStatusCode().is2xxSuccessful()) {
 
@@ -66,21 +66,27 @@ public class UserController {
     }
 
 
-    @GetMapping("/info")
-    public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
-        String username = jwt.getClaimAsString("preferred_username");
-        String userId = jwt.getClaimAsString("sub");
-        Map<String, Object> rolesMap = jwt.getClaim("realm_access");
-        List<String> roles = (List<String>) rolesMap.get("roles");
-
-        String role = roles.stream()
-                .filter(VALID_ROLES::contains)
-                .min((r1, r2) -> Integer.compare(VALID_ROLES.indexOf(r1), VALID_ROLES.indexOf(r2)))
-                .orElse("unknown");
-
-        UserInfoResponse userInfoResponse = new UserInfoResponse(username, userId, role);
-        return ResponseEntity.ok(userInfoResponse);
+    @DeleteMapping("/delete-user/{userId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> deleteUser(@PathVariable String userId) {
+        ResponseEntity<String> response = keycloakAdminClientService.deleteUser(userId);
+        return response;
     }
+
+    @PutMapping("/update-credentials")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> updateUserCredentials(@RequestBody UserUpdateCredentialsRequest userUpdateCredentialsRequest) {
+        ResponseEntity<String> response = keycloakAdminClientService.updateUserCredentials(userUpdateCredentialsRequest);
+        return response;
+    }
+
+    @PostMapping("/remove-role")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> removeRole(@RequestBody UserRoleRequest userRemoveRoleRequest) {
+        ResponseEntity<String> response = keycloakAdminClientService.removeRole(userRemoveRoleRequest.getUserID(), userRemoveRoleRequest.getRole());
+        return response;
+    }
+
 
     // A method that just returns the token back to the user
     @GetMapping("/token")
