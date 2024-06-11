@@ -2,6 +2,7 @@ package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.UserAssignRoleRequest;
 import com.GradeCenter.dtos.UserAuthorizationRequest;
+import com.GradeCenter.dtos.UserInfoResponse;
 import com.GradeCenter.dtos.UserRegistrationRequest;
 import com.GradeCenter.service.implementation.KeycloakAdminClientService;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,6 +21,8 @@ import java.util.Map;
 public class UserController {
 
     private final KeycloakAdminClientService keycloakAdminClientService;
+
+    private static final List<String> VALID_ROLES = Arrays.asList("admin", "director", "teacher", "parent"  ,"student");
 
     public UserController(KeycloakAdminClientService keycloakAdminClientService) {
         this.keycloakAdminClientService = keycloakAdminClientService;
@@ -60,13 +65,29 @@ public class UserController {
         }
     }
 
-    /* Test controller, will remove later */
-    @GetMapping("/roles")
-    public Map<String, Object> getUserRoles(@AuthenticationPrincipal Jwt jwt) {
-        String userId = jwt.getSubject();
-        return keycloakAdminClientService.getUserRoleMappings(userId);
+
+    @GetMapping("/info")
+    public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+        String username = jwt.getClaimAsString("preferred_username");
+        String userId = jwt.getClaimAsString("sub");
+        Map<String, Object> rolesMap = jwt.getClaim("realm_access");
+        List<String> roles = (List<String>) rolesMap.get("roles");
+
+        String role = roles.stream()
+                .filter(VALID_ROLES::contains)
+                .min((r1, r2) -> Integer.compare(VALID_ROLES.indexOf(r1), VALID_ROLES.indexOf(r2)))
+                .orElse("unknown");
+
+        UserInfoResponse userInfoResponse = new UserInfoResponse(username, userId, role);
+        return ResponseEntity.ok(userInfoResponse);
     }
-    // <---------------------------------->
+
+    // A method that just returns the token back to the user
+    @GetMapping("/token")
+    public ResponseEntity<Jwt> getToken(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(jwt);
+    }
+
 
     private String extractUserIdFromLocationHeader(URI location) {
         String path = location.getPath();

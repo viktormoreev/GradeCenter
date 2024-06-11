@@ -182,37 +182,7 @@ public class KeycloakAdminClientService {
         }
     }
 
-    /*
-    * This method gets the role mappings for a user in the Keycloak server.
-    * It sends a GET request to the Keycloak server with the user ID.
-    * The user ID is the unique identifier of the user in the Keycloak server.
-    * The response from the server is returned as a Map<String, Object>.
-     */
 
-    public Map<String, Object> getUserRoleMappings(String userId) {
-        try {
-            String token = getAdminAccessToken();
-            logger.debug("Getting role mappings for user {}", userId);
-            HttpHeaders headers = createHeadersWithToken(token);
-
-            String getRoleMappingsUrl = String.format("%s/admin/realms/%s/users/%s/role-mappings", keycloakAdminUrl, keycloakRealm, userId);
-            ResponseEntity<Map> roleMappingsResponse = restTemplate.exchange(getRoleMappingsUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
-
-            if (roleMappingsResponse.getStatusCode().is2xxSuccessful()) {
-                return roleMappingsResponse.getBody();
-            } else {
-                logger.error("Failed to get role mappings: HTTP Status {}", roleMappingsResponse.getStatusCode());
-                throw new RuntimeException("Failed to get role mappings: " + roleMappingsResponse.getStatusCode());
-            }
-        } catch (Exception e) {
-            logger.error("Error getting role mappings: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to get role mappings", e);
-        }
-    }
-
-    /*
-    * This method creates HTTP headers with the access token.
-     */
 
     private HttpHeaders createHeadersWithToken(String token) {
         HttpHeaders headers = new HttpHeaders();
