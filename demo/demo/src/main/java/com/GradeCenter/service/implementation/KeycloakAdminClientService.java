@@ -393,16 +393,18 @@ public class KeycloakAdminClientService {
     public ResponseEntity<UserInfoResponse> getUserInfo(Jwt jwt) {
         String username = jwt.getClaimAsString("preferred_username");
         String userId = jwt.getClaimAsString("sub");
-        Map<String, Object> rolesMap = jwt.getClaim("realm_access");
-        List<String> roles = (List<String>) rolesMap.get("roles");
-
-        String role = roles.stream()
-                .filter(VALID_ROLES::contains)
-                .min((r1, r2) -> Integer.compare(VALID_ROLES.indexOf(r1), VALID_ROLES.indexOf(r2)))
-                .orElse("unknown");
+        String role = stripRoles(jwt.getClaim("realm_access"));
 
         UserInfoResponse userInfoResponse = new UserInfoResponse(username, userId, role);
         return ResponseEntity.ok(userInfoResponse);
+    }
+
+    public String stripRoles(Map<String, Object> rolesMap) {
+        List<String> roles = (List<String>) rolesMap.get("roles");
+        return roles.stream()
+                .filter(VALID_ROLES::contains)
+                .min((r1, r2) -> Integer.compare(VALID_ROLES.indexOf(r1), VALID_ROLES.indexOf(r2)))
+                .orElse("unknown");
     }
 
 
