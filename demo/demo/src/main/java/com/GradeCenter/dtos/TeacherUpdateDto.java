@@ -7,13 +7,13 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
 @Setter
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
-public class ParentDto {
+@AllArgsConstructor
+public class TeacherUpdateDto {
 
-    String userID;
-    List<Long> studentsID;
-
+    private List<Long> courseIds;
+    private Long schoolId;
+    private List<Long> qualificationsIds;
 }

@@ -1,6 +1,7 @@
 package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.DirectorDto;
+import com.GradeCenter.dtos.DirectorUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.DirectorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/directors")
@@ -32,34 +32,31 @@ public class DirectorController {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
 
-        Optional<DirectorDto> director = directorService.getDirectorByUId(userId);
-        if (director.isEmpty()) {
+        DirectorDto director = directorService.getDirectorByUId(userId);
+        if (director == null) {
             return ResponseEntity.notFound().build();
         }
-        return director.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(director);
     }
 
     @GetMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DirectorDto> getDirectorById(@PathVariable("id") Long id) {
-        Optional<DirectorDto> director = directorService.getDirectorById(id);
-        if (director.isEmpty()) {
+        DirectorDto director = directorService.getDirectorById(id);
+        if (director == null) {
             return ResponseEntity.notFound().build();
         }
-        return director.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(director);
     }
 
     @GetMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DirectorDto> getDirectorByUId(@PathVariable("id") String userID) {
-        Optional<DirectorDto> director = directorService.getDirectorByUId(userID);
-        if (director.isEmpty()) {
+        DirectorDto director = directorService.getDirectorByUId(userID);
+        if (director == null) {
             return ResponseEntity.notFound().build();
         }
-        return director.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(director);
     }
 
     @PostMapping
@@ -72,42 +69,42 @@ public class DirectorController {
     @DeleteMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteDirectorId(@PathVariable("id") Long id) {
-        ResponseEntity<String> response = directorService.deleteDirectorID(id);
-        if (response.getStatusCode().is2xxSuccessful()) {
+        boolean isDeleted = directorService.deleteDirectorID(id);
+        if (isDeleted) {
             return ResponseEntity.ok("Director deleted successfully");
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete director");
+            return ResponseEntity.status(404).body("Failed to delete director");
         }
     }
 
     @DeleteMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteDirectorUID(@PathVariable("id") String userID) {
-        ResponseEntity<String> response = directorService.deleteDirectorUID(userID);
-        if (response.getStatusCode().is2xxSuccessful()) {
+        boolean isDeleted = directorService.deleteDirectorUID(userID);
+        if (isDeleted) {
             return ResponseEntity.ok("Director deleted successfully");
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete director");
+            return ResponseEntity.status(404).body("Failed to delete director");
         }
     }
 
     @PutMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<DirectorDto> updateDirectorID(@PathVariable("id") Long id, @RequestBody DirectorDto directorDto) {
-        Optional<DirectorDto> response = directorService.updateDirectorID(id, directorDto);
-        if (response.isEmpty()) {
+    public ResponseEntity<DirectorDto> updateDirectorID(@PathVariable("id") Long id, @RequestBody DirectorUpdateDto directorUpdateDto) {
+        DirectorDto updatedDirector = directorService.updateDirectorID(id, directorUpdateDto);
+        if (updatedDirector == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(directorDto);
+        return ResponseEntity.ok(updatedDirector);
     }
 
     @PutMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<DirectorDto> updateDirectorUID(@PathVariable("id") String userID, @RequestBody DirectorDto directorDto) {
-        Optional<DirectorDto> response = directorService.updateDirectorUID(userID, directorDto);
-        if (response.isEmpty()) {
+    public ResponseEntity<DirectorDto> updateDirectorUID(@PathVariable("id") String userID, @RequestBody DirectorUpdateDto directorUpdateDto) {
+        DirectorDto updatedDirector = directorService.updateDirectorUID(userID, directorUpdateDto);
+        if (updatedDirector == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(directorDto);
+        return ResponseEntity.ok(updatedDirector);
     }
 }

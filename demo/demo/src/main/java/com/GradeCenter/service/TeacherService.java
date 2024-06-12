@@ -1,26 +1,27 @@
 package com.GradeCenter.service;
 
 import com.GradeCenter.dtos.TeacherDto;
+import com.GradeCenter.dtos.TeacherUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TeacherService {
     List<TeacherDto> getAllTeachers();
 
-    Optional<TeacherDto> getTeacherByUId(String userId);
-
-    Optional<TeacherDto> getTeacherById(Long id);
-
     TeacherDto addTeacher(UserIDRequest userIDRequest);
 
-    ResponseEntity<String> deleteTeacherID(Long id);
+    TeacherDto getTeacherById(Long id);
 
-    ResponseEntity<String> deleteTeacherUID(String userID);
+    TeacherDto getTeacherByUId(String uid);
 
-    Optional<TeacherDto> updateTeacherID(Long id, TeacherDto teacherDto);
+    boolean deleteTeacherUID(String userID);
 
-    Optional<TeacherDto> updateTeacherUID(String userID, TeacherDto teacherDto);
+    boolean deleteTeacherID(Long ID);
+
+    TeacherDto updateTeacherID(Long id, TeacherUpdateDto teacherUpdateDto);
+
+    TeacherDto updateTeacherUID(String userID, TeacherUpdateDto teacherUpdateDto);
+
+
 }

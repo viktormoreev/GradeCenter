@@ -1,26 +1,25 @@
 package com.GradeCenter.service;
 
 import com.GradeCenter.dtos.DirectorDto;
+import com.GradeCenter.dtos.DirectorUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface DirectorService {
     List<DirectorDto> getAllDirectors();
 
-    Optional<DirectorDto> getDirectorByUId(String userId);
-
-    Optional<DirectorDto> getDirectorById(Long id);
-
     DirectorDto addDirector(UserIDRequest userIDRequest);
 
-    ResponseEntity<String> deleteDirectorID(Long id);
+    DirectorDto getDirectorById(Long id);
 
-    ResponseEntity<String> deleteDirectorUID(String userID);
+    DirectorDto getDirectorByUId(String uid);
 
-    Optional<DirectorDto> updateDirectorID(Long id, DirectorDto directorDto);
+    boolean deleteDirectorUID(String userID);
 
-    Optional<DirectorDto> updateDirectorUID(String userID, DirectorDto directorDto);
+    boolean deleteDirectorID(Long ID);
+
+    DirectorDto updateDirectorID(Long id, DirectorUpdateDto directorUpdateDto);
+
+    DirectorDto updateDirectorUID(String userID, DirectorUpdateDto directorUpdateDto);
 }

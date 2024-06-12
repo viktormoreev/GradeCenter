@@ -2,15 +2,14 @@ package com.GradeCenter.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class DirectorDto {
+public class UserInfoResponse {
 
-    private String userID;
-    private Long schoolID;
+    private String username;
+    private String userid;
+    private String role;
 }

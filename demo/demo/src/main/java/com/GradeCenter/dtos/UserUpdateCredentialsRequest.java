@@ -5,15 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParentDto {
+public class UserUpdateCredentialsRequest {
 
-    String userID;
-    List<Long> studentsID;
+    private String userID;
+    private String username;
+    private String password;
 
 }

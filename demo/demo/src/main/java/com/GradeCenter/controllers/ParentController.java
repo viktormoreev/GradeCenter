@@ -1,6 +1,7 @@
 package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.ParentDto;
+import com.GradeCenter.dtos.ParentUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.ParentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/parents")
@@ -32,34 +32,31 @@ public class ParentController {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
 
-        Optional<ParentDto> parent = parentService.getParentByUId(userId);
-        if (parent.isEmpty()) {
+        ParentDto parent = parentService.getParentByUId(userId);
+        if (parent == null) {
             return ResponseEntity.notFound().build();
         }
-        return parent.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(parent);
     }
 
     @GetMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ParentDto> getParentById(@PathVariable("id") Long id) {
-        Optional<ParentDto> parent = parentService.getParentById(id);
-        if (parent.isEmpty()) {
+        ParentDto parent = parentService.getParentById(id);
+        if (parent == null) {
             return ResponseEntity.notFound().build();
         }
-        return parent.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(parent);
     }
 
     @GetMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ParentDto> getParentByUId(@PathVariable("id") String userID) {
-        Optional<ParentDto> parent = parentService.getParentByUId(userID);
-        if (parent.isEmpty()) {
+        ParentDto parent = parentService.getParentByUId(userID);
+        if (parent == null) {
             return ResponseEntity.notFound().build();
         }
-        return parent.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(parent);
     }
 
     @PostMapping
@@ -72,42 +69,42 @@ public class ParentController {
     @DeleteMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteParentId(@PathVariable("id") Long id) {
-        ResponseEntity<String> response = parentService.deleteParentID(id);
-        if (response.getStatusCode().is2xxSuccessful()) {
+        boolean isDeleted = parentService.deleteParentID(id);
+        if (isDeleted) {
             return ResponseEntity.ok("Parent deleted successfully");
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete parent");
+            return ResponseEntity.status(404).body("Failed to delete parent");
         }
     }
 
     @DeleteMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteParentUID(@PathVariable("id") String userID) {
-        ResponseEntity<String> response = parentService.deleteParentUID(userID);
-        if (response.getStatusCode().is2xxSuccessful()) {
+        boolean isDeleted = parentService.deleteParentUID(userID);
+        if (isDeleted) {
             return ResponseEntity.ok("Parent deleted successfully");
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to delete parent");
+            return ResponseEntity.status(404).body("Failed to delete parent");
         }
     }
 
     @PutMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<ParentDto> updateParentID(@PathVariable("id") Long id, @RequestBody ParentDto parentDto) {
-        Optional<ParentDto> response = parentService.updateParentID(id, parentDto);
-        if (response.isEmpty()) {
+    public ResponseEntity<ParentDto> updateParentID(@PathVariable("id") Long id, @RequestBody ParentUpdateDto parentUpdateDto) {
+        ParentDto updatedParent = parentService.updateParentID(id, parentUpdateDto);
+        if (updatedParent == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(parentDto);
+        return ResponseEntity.ok(updatedParent);
     }
 
     @PutMapping("/uid={id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<ParentDto> updateParentUID(@PathVariable("id") String userID, @RequestBody ParentDto parentDto) {
-        Optional<ParentDto> response = parentService.updateParentUID(userID, parentDto);
-        if (response.isEmpty()) {
+    public ResponseEntity<ParentDto> updateParentUID(@PathVariable("id") String userID, @RequestBody ParentUpdateDto parentUpdateDto) {
+        ParentDto updatedParent = parentService.updateParentUID(userID, parentUpdateDto);
+        if (updatedParent == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(parentDto);
+        return ResponseEntity.ok(updatedParent);
     }
 }
