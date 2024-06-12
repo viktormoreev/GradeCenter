@@ -202,6 +202,53 @@ public class KeycloakAdminClientService {
         return ResponseEntity.ok("Role assigned successfully");
     }
 
+    public ResponseEntity<String> assignRoleUsername(String username, String roleName) {
+        try {
+            String token = getAdminAccessToken();
+            logger.debug("Adding role {} to user {}", roleName, username);
+            HttpHeaders headers = createHeadersWithToken(token);
+
+            // Step 1: Get the user ID from the username
+            String getUserIdUrl = String.format("%s/admin/realms/%s/users?username=%s", keycloakAdminUrl, keycloakRealm, username);
+            ResponseEntity<Map[]> userResponse = restTemplate.exchange(getUserIdUrl, HttpMethod.GET, new HttpEntity<>(headers), Map[].class);
+
+            if (!userResponse.getStatusCode().is2xxSuccessful() || userResponse.getBody() == null || userResponse.getBody().length == 0) {
+                logger.error("Failed to get user ID: HTTP Status {}", userResponse.getStatusCode());
+                logger.error("User response body: {}", (Object) userResponse.getBody());
+                throw new RuntimeException("Failed to get user ID: " + userResponse.getStatusCode());
+            }
+
+            String userId = (String) userResponse.getBody()[0].get("id");
+
+            // Step 2: Get the role ID from the role name
+            String roleUrl = String.format("%s/admin/realms/%s/roles/%s", keycloakAdminUrl, keycloakRealm, roleName);
+            ResponseEntity<Map> roleResponse = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
+
+            if (!roleResponse.getStatusCode().is2xxSuccessful()) {
+                logger.error("Failed to get role: HTTP Status {}", roleResponse.getStatusCode());
+                throw new RuntimeException("Failed to get role: " + roleResponse.getStatusCode());
+            }
+
+            Map<String, Object> role = roleResponse.getBody();
+            String roleId = (String) role.get("id");
+
+            Map<String, Object> roleRepresentation = new HashMap<>();
+            roleRepresentation.put("id", roleId);
+            roleRepresentation.put("name", roleName);
+            Map<String, Object>[] roles = new Map[]{roleRepresentation};
+
+            // Step 3: Assign the role to the user
+            String assignRoleUrl = String.format("%s/admin/realms/%s/users/%s/role-mappings/realm", keycloakAdminUrl, keycloakRealm, userId);
+            HttpEntity<Map<String, Object>[]> requestEntity = new HttpEntity<>(roles, headers);
+            restTemplate.postForEntity(assignRoleUrl, requestEntity, String.class);
+
+        } catch (Exception e) {
+            logger.error("Error assigning role: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to assign role", e);
+        }
+        return ResponseEntity.ok("Role assigned successfully");
+    }
+
     /*
     * This method gets the access token for the Keycloak admin user.
     * It sends a POST request to the Keycloak server with the admin username and password.

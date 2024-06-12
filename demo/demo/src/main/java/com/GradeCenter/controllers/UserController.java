@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,12 +27,17 @@ public class UserController {
     public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest request) {
 
         ResponseEntity<String> response = keycloakAdminClientService.createUser(request.getUsername(), request.getPassword());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            String userId = extractUserIdFromLocationHeader(response.getHeaders().getLocation());
-            return ResponseEntity.ok("User registered successfully");
-        } else {
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
             return ResponseEntity.status(response.getStatusCode()).body("Failed to register user");
         }
+        response = keycloakAdminClientService.assignRole(extractUserIdFromLocationHeader(response.getHeaders().getLocation()), request.getRole());
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return ResponseEntity.status(response.getStatusCode()).body("Failed to assign role");
+        }
+
+        return ResponseEntity.ok("User registered successfully");
+
     }
 
     @PostMapping("/login")
@@ -56,10 +62,18 @@ public class UserController {
     public ResponseEntity<String> assignRoleStudent(@RequestBody UserRoleRequest userAssignRoleRequest) {
         ResponseEntity<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
         if (response.getStatusCode().is2xxSuccessful()) {
-
-
             return ResponseEntity.ok("Role assigned successfully");
+        } else {
+            return ResponseEntity.status(response.getStatusCode()).body("Failed to assign role");
+        }
+    }
 
+    @PostMapping("/assign-role-username")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> assignRoleStudentByUsername(@RequestBody UserRoleUsernameRequest userAssignRoleUsernameRequest) {
+        ResponseEntity<String> response = keycloakAdminClientService.assignRoleUsername(userAssignRoleUsernameRequest.getUsername(), userAssignRoleUsernameRequest.getRole());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok("Role assigned successfully");
         } else {
             return ResponseEntity.status(response.getStatusCode()).body("Failed to assign role");
         }
