@@ -3,7 +3,10 @@ package com.GradeCenter.service.implementation;
 import com.GradeCenter.dtos.ApiResponse;
 import com.GradeCenter.dtos.UserInfoResponse;
 import com.GradeCenter.dtos.UserUpdateCredentialsRequest;
+import com.GradeCenter.service.DirectorService;
+import com.GradeCenter.service.ParentService;
 import com.GradeCenter.service.StudentService;
+import com.GradeCenter.service.TeacherService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -25,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.GradeCenter.dtos.UserIDRequest;
 
 
 import java.net.URI;
@@ -57,6 +61,16 @@ public class KeycloakAdminClientService {
 
     @Autowired
     private StudentService studentService;
+
+    @Autowired
+    private DirectorService directorService;
+
+    @Autowired
+    private TeacherService teacherService;
+
+    @Autowired
+    private ParentService parentService;
+
 
     private final RestTemplate restTemplate;
 
@@ -143,6 +157,10 @@ public class KeycloakAdminClientService {
             }
 
             userResource.roles().realmLevel().add(Collections.singletonList(role));
+
+            // Create respective entity in the database
+            createEntityForRole(userId, roleName);
+
             return new ApiResponse<>(true, "Role assigned successfully", null);
         } catch (Exception e) {
             logger.error("Error assigning role: {}", e.getMessage(), e);
@@ -168,6 +186,16 @@ public class KeycloakAdminClientService {
         } catch (Exception e) {
             logger.error("Error deleting user: {}", e.getMessage(), e);
             return new ApiResponse<>(false, "Failed to delete user", null);
+        }
+    }
+
+    public ApiResponse<String> deleteUserByUsername(String username) {
+        try {
+            UserRepresentation user = keycloak.realm(keycloakRealm).users().search(username).get(0);
+            return deleteUser(user.getId());
+        } catch (Exception e) {
+            logger.error("Error deleting user by username: {}", e.getMessage(), e);
+            return new ApiResponse<>(false, "Failed to delete user by username", null);
         }
     }
 
@@ -199,12 +227,16 @@ public class KeycloakAdminClientService {
         try {
             RoleRepresentation role = keycloak.realm(keycloakRealm).roles().get(roleName).toRepresentation();
             keycloak.realm(keycloakRealm).users().get(userId).roles().realmLevel().remove(Collections.singletonList(role));
+
+            deleteEntityForRole(userId, roleName);
+
             return new ApiResponse<>(true, "Role removed successfully", null);
         } catch (Exception e) {
             logger.error("Error removing role: {}", e.getMessage(), e);
             return new ApiResponse<>(false, "Failed to remove role", null);
         }
     }
+
 
     public ApiResponse<UserInfoResponse> getUserInfo(Jwt jwt) {
         String username = jwt.getClaimAsString("preferred_username");
@@ -263,9 +295,12 @@ public class KeycloakAdminClientService {
             List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listAll();
             List<RoleRepresentation> rolesToRemove = new ArrayList<>();
 
+            // Identify and remove current roles
             for (RoleRepresentation role : currentRoles) {
                 if (VALID_ROLES.contains(role.getName())) {
                     rolesToRemove.add(role);
+                    // Delete respective entity
+                    deleteEntityForRole(userId, role.getName());
                 }
             }
 
@@ -273,8 +308,12 @@ public class KeycloakAdminClientService {
                 userResource.roles().realmLevel().remove(rolesToRemove);
             }
 
+            // Assign new role
             RoleRepresentation newRole = keycloak.realm(keycloakRealm).roles().get(newRoleName).toRepresentation();
             userResource.roles().realmLevel().add(Collections.singletonList(newRole));
+
+            // Create respective entity
+            createEntityForRole(userId, newRoleName);
 
             return new ApiResponse<>(true, "Role switched successfully", null);
         } catch (Exception e) {
@@ -282,6 +321,7 @@ public class KeycloakAdminClientService {
             return new ApiResponse<>(false, "Failed to switch role: " + e.getMessage(), null);
         }
     }
+
 
     public ApiResponse<String> switchUserRoleByUsername(String username, String newRoleName) {
         if (username == null || username.isEmpty() || newRoleName == null || newRoleName.isEmpty()) {
@@ -300,26 +340,7 @@ public class KeycloakAdminClientService {
             }
 
             UserRepresentation user = users.get(0);
-            UserResource userResource = keycloak.realm(keycloakRealm).users().get(user.getId());
-            List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listAll();
-            List<RoleRepresentation> rolesToRemove = new ArrayList<>();
-
-            for (RoleRepresentation role : currentRoles) {
-                if (VALID_ROLES.contains(role.getName())) {
-                    rolesToRemove.add(role);
-                }
-            }
-
-            // Remove current roles
-            if (!rolesToRemove.isEmpty()) {
-                userResource.roles().realmLevel().remove(rolesToRemove);
-            }
-
-            // Assign new role
-            RoleRepresentation newRole = keycloak.realm(keycloakRealm).roles().get(newRoleName).toRepresentation();
-            userResource.roles().realmLevel().add(Collections.singletonList(newRole));
-
-            return new ApiResponse<>(true, "Role switched successfully", null);
+            return switchUserRole(user.getId(), newRoleName);
         } catch (Exception e) {
             logger.error("Error switching role: {}", e.getMessage(), e);
             return new ApiResponse<>(false, "Failed to switch role: " + e.getMessage(), null);
@@ -355,6 +376,41 @@ public class KeycloakAdminClientService {
             return (List<String>) realmAccess.get("roles");
         } catch (Exception e) {
             throw new RuntimeException("Failed to extract roles from token", e);
+        }
+    }
+
+    private void createEntityForRole(String userId, String roleName) {
+        switch (roleName.toLowerCase()) {
+            case "director":
+                directorService.addDirector(new UserIDRequest(userId));
+                break;
+            case "teacher":
+                teacherService.addTeacher(new UserIDRequest(userId));
+                break;
+            case "parent":
+                parentService.addParent(new UserIDRequest(userId));
+                break;
+            case "student":
+                studentService.addStudent(new UserIDRequest(userId));
+                break;
+        }
+    }
+
+    private void deleteEntityForRole(String userId, String roleName) {
+        switch (roleName.toLowerCase()) {
+            case "director":
+                directorService.deleteDirectorUID(userId);
+                break;
+            case "teacher":
+                teacherService.deleteTeacherUID(userId);
+                break;
+            case "parent":
+                parentService.deleteParentUID(userId);
+                break;
+            case "student":
+                studentService.deleteStudentUID(userId);
+                break;
+            // No entity deletion for admin
         }
     }
 
