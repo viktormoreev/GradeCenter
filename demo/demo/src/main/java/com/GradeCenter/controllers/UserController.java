@@ -59,6 +59,7 @@ public class UserController {
         }
     }
 
+    @Deprecated
     @PostMapping("/assign-role")
     public ResponseEntity<String> assignRoleStudent(@RequestBody UserRoleRequest userAssignRoleRequest) {
         ApiResponse<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
@@ -69,6 +70,7 @@ public class UserController {
         }
     }
 
+    @Deprecated
     @PostMapping("/assign-role-username")
     public ResponseEntity<String> assignRoleByUsername(@RequestBody UserRoleUsernameRequest userAssignRoleUsernameRequest) {
         ApiResponse<String> response = keycloakAdminClientService.assignRoleUsername(userAssignRoleUsernameRequest.getUsername(), userAssignRoleUsernameRequest.getRole());
