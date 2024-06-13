@@ -4,10 +4,13 @@ import com.GradeCenter.dtos.ApiResponse;
 import com.GradeCenter.dtos.UserInfoResponse;
 import com.GradeCenter.dtos.UserUpdateCredentialsRequest;
 import com.GradeCenter.service.StudentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.springframework.http.*;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -17,9 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 
 import java.net.URI;
 import java.util.*;
@@ -52,33 +58,46 @@ public class KeycloakAdminClientService {
     @Autowired
     private StudentService studentService;
 
+    private final RestTemplate restTemplate;
+
+    public KeycloakAdminClientService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public ApiResponse<Map<String, Object>> loginUser(String username, String password) {
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-            return new ApiResponse<>(false, "Username or password cannot be null or empty", null);
-        }
+        logger.info("Logging in user: {}", username);
 
         try {
-            AccessTokenResponse tokenResponse = keycloak.tokenManager().getAccessToken();
+            String loginUrl = String.format("%s/realms/%s/protocol/openid-connect/token", keycloakAdminUrl, keycloakRealm);
 
-            UserRepresentation user = keycloak.realm(keycloakRealm).users().search(username).get(0);
-            List<RoleRepresentation> roles = keycloak.realm(keycloakRealm)
-                    .users()
-                    .get(user.getId())
-                    .roles()
-                    .realmLevel()
-                    .listAll();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED));
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("role", stripRoles(roles.stream().map(RoleRepresentation::getName).toList()));
-            response.put("access_token", tokenResponse.getToken());
+            String body = String.format("grant_type=password&client_id=student-rest-api&username=%s&password=%s",
+                    username, password);
 
+            HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.exchange(loginUrl, HttpMethod.POST, requestEntity, String.class);
 
-            return new ApiResponse<>(true, "Login successful", response);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                String accessToken = extractAccessToken(responseBody);
+                String role = stripRoles(extractRolesFromToken(accessToken));
+
+                Map<String, Object> responseBodyMap = new HashMap<>();
+                responseBodyMap.put("access_token", accessToken);
+                responseBodyMap.put("role", role);
+
+                return new ApiResponse<>(true, "User logged in successfully", responseBodyMap);
+            } else {
+                return new ApiResponse<>(false, "Failed to login user: " + response.getStatusCode(), null);
+            }
         } catch (Exception e) {
             logger.error("Error logging in user: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Login failed: " + e.getMessage(), null);
+            throw new RuntimeException("Failed to login user", e);
         }
     }
+
 
     public ApiResponse<String> createUser(String username, String password) {
         logger.info("Creating user: {}", username);
@@ -190,7 +209,9 @@ public class KeycloakAdminClientService {
     public ApiResponse<UserInfoResponse> getUserInfo(Jwt jwt) {
         String username = jwt.getClaimAsString("preferred_username");
         String userId = jwt.getClaimAsString("sub");
-        String role = stripRoles(jwt.getClaim("realm_access"));
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        List<String> roles = (List<String>) realmAccess.get("roles");
+        String role = stripRoles(roles);
 
         UserInfoResponse userInfoResponse = new UserInfoResponse(username, userId, role);
         return new ApiResponse<>(true, "User info retrieved successfully", userInfoResponse);
@@ -313,5 +334,31 @@ public class KeycloakAdminClientService {
         }
         throw new RuntimeException("Location header is missing or invalid");
     }
+
+    private String extractAccessToken(String responseBody) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> map = mapper.readValue(responseBody, Map.class);
+            return (String) map.get("access_token");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse access token from response", e);
+        }
+    }
+
+    private List<String> extractRolesFromToken(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> payloadMap = mapper.readValue(payload, Map.class);
+            Map<String, Object> realmAccess = (Map<String, Object>) payloadMap.get("realm_access");
+            return (List<String>) realmAccess.get("roles");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract roles from token", e);
+        }
+    }
+
+
+
 
 }
