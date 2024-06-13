@@ -2,8 +2,8 @@ package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.*;
 import com.GradeCenter.service.implementation.KeycloakAdminClientService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -23,95 +23,130 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest request) {
+        ApiResponse<String> response = keycloakAdminClientService.createUser(request.getUsername(), request.getPassword());
 
-        ResponseEntity<String> response = keycloakAdminClientService.createUser(request.getUsername(), request.getPassword());
-
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to register user");
-        }
-        response = keycloakAdminClientService.assignRole(extractUserIdFromLocationHeader(response.getHeaders().getLocation()), request.getRole());
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to assign role");
+        if (!response.isSuccess()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
         }
 
-        return ResponseEntity.ok("User registered successfully");
+        String userId = response.getData();
+        ApiResponse<String> roleResponse = keycloakAdminClientService.assignRole(userId, request.getRole());
+        if (!roleResponse.isSuccess()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(roleResponse.getMessage());
+        }
 
+        return ResponseEntity.ok("User registered and role assigned successfully");
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody UserAuthorizationRequest userAuthorizationRequest) {
-        ResponseEntity<Map<String, Object>> response = keycloakAdminClientService.loginUser(userAuthorizationRequest.getUsername(), userAuthorizationRequest.getPassword());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return ResponseEntity.ok(response.getBody());
+        ApiResponse<Map<String, Object>> response = keycloakAdminClientService.loginUser(userAuthorizationRequest.getUsername(), userAuthorizationRequest.getPassword());
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getData());
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getData());
         }
     }
 
-
     @GetMapping("/info")
     public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
-        return keycloakAdminClientService.getUserInfo(jwt);
+        ApiResponse<UserInfoResponse> response = keycloakAdminClientService.getUserInfo(jwt);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getData());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
-
     @PostMapping("/assign-role")
-    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> assignRoleStudent(@RequestBody UserRoleRequest userAssignRoleRequest) {
-        ResponseEntity<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return ResponseEntity.ok("Role assigned successfully");
+        ApiResponse<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getMessage());
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to assign role");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
         }
     }
 
     @PostMapping("/assign-role-username")
-    //@PreAuthorize("hasRole('admin')")
-    public ResponseEntity<String> assignRoleStudentByUsername(@RequestBody UserRoleUsernameRequest userAssignRoleUsernameRequest) {
-        ResponseEntity<String> response = keycloakAdminClientService.assignRoleUsername(userAssignRoleUsernameRequest.getUsername(), userAssignRoleUsernameRequest.getRole());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return ResponseEntity.ok("Role assigned successfully");
+    public ResponseEntity<String> assignRoleByUsername(@RequestBody UserRoleUsernameRequest userAssignRoleUsernameRequest) {
+        ApiResponse<String> response = keycloakAdminClientService.assignRoleUsername(userAssignRoleUsernameRequest.getUsername(), userAssignRoleUsernameRequest.getRole());
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getMessage());
         } else {
-            return ResponseEntity.status(response.getStatusCode()).body("Failed to assign role");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
         }
     }
 
-
     @DeleteMapping("/delete-user/{userId}")
-    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteUser(@PathVariable String userId) {
-        ResponseEntity<String> response = keycloakAdminClientService.deleteUser(userId);
-        return response;
+        ApiResponse<String> response = keycloakAdminClientService.deleteUser(userId);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getMessage());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
+        }
     }
 
     @PutMapping("/update-credentials")
-    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> updateUserCredentials(@RequestBody UserUpdateCredentialsRequest userUpdateCredentialsRequest) {
-        ResponseEntity<String> response = keycloakAdminClientService.updateUserCredentials(userUpdateCredentialsRequest);
-        return response;
+        ApiResponse<String> response = keycloakAdminClientService.updateUserCredentials(userUpdateCredentialsRequest);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getMessage());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
+        }
     }
 
     @PostMapping("/remove-role")
-    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> removeRole(@RequestBody UserRoleRequest userRemoveRoleRequest) {
-        ResponseEntity<String> response = keycloakAdminClientService.removeRole(userRemoveRoleRequest.getUserID(), userRemoveRoleRequest.getRole());
-        return response;
+        ApiResponse<String> response = keycloakAdminClientService.removeRole(userRemoveRoleRequest.getUserID(), userRemoveRoleRequest.getRole());
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getMessage());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
+        }
     }
 
-
-    // A method that just returns the token back to the user
     @GetMapping("/token")
     public ResponseEntity<Jwt> getToken(@AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(jwt);
     }
 
-
-    private String extractUserIdFromLocationHeader(URI location) {
-        String path = location.getPath();
-        return path.substring(path.lastIndexOf('/') + 1);
+    @GetMapping("/users")
+    public ResponseEntity<Map<String, String>> getUsers() {
+        ApiResponse<Map<String, String>> response = keycloakAdminClientService.getAllUsersAndRoles();
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getData());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
+    @PatchMapping("/switch-role")
+    public ResponseEntity<String> switchUserRole(@RequestBody SwitchUserRoleRequest switchUserRoleRequest) {
+        ApiResponse<String> response = keycloakAdminClientService.switchUserRole(
+                switchUserRoleRequest.getUserID(),
+                switchUserRoleRequest.getRole()
+        );
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getMessage());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
+        }
+    }
+
+    @PatchMapping("/switch-role-username")
+    public ResponseEntity<String> switchUserRoleByUsername(@RequestBody SwitchUserUsernameRoleRequest switchUserRoleRequest) {
+        ApiResponse<String> response = keycloakAdminClientService.switchUserRoleByUsername(
+                switchUserRoleRequest.getUsername(),
+                switchUserRoleRequest.getRole()
+        );
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response.getMessage());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
+        }
+    }
 }
