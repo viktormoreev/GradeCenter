@@ -1,6 +1,7 @@
 package com.GradeCenter.service;
 
 import com.GradeCenter.dtos.StudentDto;
+import com.GradeCenter.dtos.StudentFullReturnDto;
 import com.GradeCenter.dtos.StudentUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
 
@@ -22,4 +23,6 @@ public interface StudentService {
     StudentDto updateStudentID(Long id, StudentUpdateDto studentDto);
 
     StudentDto updateStudentUID(String userID, StudentUpdateDto studentDto);
+
+    List<StudentFullReturnDto> getAllStudentsFull();
 }

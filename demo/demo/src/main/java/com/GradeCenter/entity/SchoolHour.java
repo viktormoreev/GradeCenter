@@ -3,6 +3,7 @@ package com.GradeCenter.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
@@ -19,10 +20,10 @@ public class SchoolHour extends IdGenerator {
     @Column
     @PositiveOrZero
     @DecimalMax(value = "23")
-    private int hour;
+    private Integer hour;
 
     @Column
     @PositiveOrZero
     @DecimalMax(value = "59")
-    private int minute;
+    private Integer minute;
 }

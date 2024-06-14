@@ -1,6 +1,9 @@
 package com.GradeCenter.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 @Entity
@@ -18,6 +21,8 @@ public class Grade extends IdGenerator{
     @ManyToOne(fetch = FetchType.LAZY)
     private Course course;
 
-    @Column
-    private double grade;
+    @Column(nullable = false)
+    @DecimalMin(value = "2")
+    @DecimalMax(value = "6")
+    private Double grade;
 }

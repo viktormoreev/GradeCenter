@@ -1,8 +1,6 @@
 package com.GradeCenter.service.implementation;
 
-import com.GradeCenter.dtos.StudentDto;
-import com.GradeCenter.dtos.StudentUpdateDto;
-import com.GradeCenter.dtos.UserIDRequest;
+import com.GradeCenter.dtos.*;
 import com.GradeCenter.entity.Parent;
 import com.GradeCenter.entity.Student;
 import com.GradeCenter.entity.StudyGroup;
@@ -11,7 +9,9 @@ import com.GradeCenter.repository.ParentRepository;
 import com.GradeCenter.repository.StudentRepository;
 import com.GradeCenter.repository.StudyGroupRepository;
 import com.GradeCenter.service.StudentService;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +32,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     private EntityMapper entityMapper;
+
+    @Autowired
+    private KeycloakAdminClientService keycloakAdminClientService;
 
     @Override
     public List<StudentDto> getAllStudents() {
@@ -86,6 +89,52 @@ public class StudentServiceImpl implements StudentService {
             return entityMapper.mapToStudentDto(existingStudent);
         }
         return null;
+    }
+
+    @Override
+    public List<StudentFullReturnDto> getAllStudentsFull() {
+
+        List<Student> students = studentRepository.findAll();
+        List<String> userIds = students.stream()
+                .map(Student::getUserID)
+                .collect(Collectors.toList());
+
+        List<UserRepresentation> keycloakUsers = keycloakAdminClientService.getUsersFromIDs(userIds);
+
+        return students.stream().map(student -> {
+            StudentFullReturnDto studentFullDto = new StudentFullReturnDto();
+            studentFullDto.setId(student.getId());
+
+            // Fetch username from Keycloak user representation
+            UserRepresentation keycloakUser = keycloakUsers.stream()
+                    .filter(ku -> ku.getId().equals(student.getUserID()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (keycloakUser != null) {
+                studentFullDto.setUsername(keycloakUser.getUsername());
+            }
+
+            studentFullDto.setGrade(""); // Set grade appropriately
+            studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
+            studentFullDto.setAbsences(0); // Set absences appropriately
+
+            List<String> parentIDs = student.getParents().stream()
+                    .map(Parent::getUserID)
+                    .collect(Collectors.toList());
+
+            List<UserRepresentation> parentUsers = keycloakAdminClientService.getUsersFromIDs(parentIDs);
+            List<String> parentNames = parentUsers.stream()
+                    .map(UserRepresentation::getUsername)
+                    .collect(Collectors.toList());
+
+            studentFullDto.setParent(parentNames);
+            
+            studentFullDto.setGrades(List.of(new SmallGradeDto(5.0), new SmallGradeDto(2.0))); // Set grades appropriately
+            studentFullDto.setCourses(List.of(new CourseDto("math"))); // Set courses appropriately
+
+            return studentFullDto;
+        }).collect(Collectors.toList());
     }
 
     @Override

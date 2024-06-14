@@ -21,13 +21,13 @@ public class TeacherController {
     private TeacherService teacherService;
 
     @GetMapping
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin')")
     public List<TeacherDto> getAllTeachers() {
         return teacherService.getAllTeachers();
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('teacher')")
+    //@PreAuthorize("hasRole('teacher')")
     public ResponseEntity<TeacherDto> getPersonalTeacher() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
@@ -40,7 +40,7 @@ public class TeacherController {
     }
 
     @GetMapping("/id={id}")
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<TeacherDto> getTeacherById(@PathVariable("id") Long id) {
         TeacherDto teacher = teacherService.getTeacherById(id);
         if (teacher == null) {
@@ -50,7 +50,7 @@ public class TeacherController {
     }
 
     @GetMapping("/uid={id}")
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<TeacherDto> getTeacherByUId(@PathVariable("id") String userID) {
         TeacherDto teacher = teacherService.getTeacherByUId(userID);
         if (teacher == null) {
@@ -60,14 +60,14 @@ public class TeacherController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<TeacherDto> addTeacher(@RequestBody UserIDRequest userIDRequest) {
         TeacherDto teacher = teacherService.addTeacher(userIDRequest);
         return ResponseEntity.ok(teacher);
     }
 
     @DeleteMapping("/id={id}")
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteTeacherId(@PathVariable("id") Long id) {
         boolean isDeleted = teacherService.deleteTeacherID(id);
         if (isDeleted) {
@@ -78,7 +78,7 @@ public class TeacherController {
     }
 
     @DeleteMapping("/uid={id}")
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteTeacherUID(@PathVariable("id") String userID) {
         boolean isDeleted = teacherService.deleteTeacherUID(userID);
         if (isDeleted) {
@@ -89,7 +89,7 @@ public class TeacherController {
     }
 
     @PutMapping("/id={id}")
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<TeacherDto> updateTeacherID(@PathVariable("id") Long id, @RequestBody TeacherUpdateDto teacherUpdateDto) {
         TeacherDto updatedTeacher = teacherService.updateTeacherID(id, teacherUpdateDto);
         if (updatedTeacher == null) {

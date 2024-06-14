@@ -33,6 +33,7 @@ import com.GradeCenter.dtos.UserIDRequest;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class KeycloakAdminClientService {
@@ -346,6 +347,21 @@ public class KeycloakAdminClientService {
             return new ApiResponse<>(false, "Failed to switch role: " + e.getMessage(), null);
         }
     }
+
+    public List<UserRepresentation> getUsersFromIDs(List<String> userIds) {
+        return userIds.parallelStream()
+                .map(userId -> {
+                    try {
+                        return keycloak.realm(keycloakRealm).users().get(userId).toRepresentation();
+                    } catch (Exception e) {
+                        logger.error("Error fetching user with ID {}: {}", userId, e.getMessage(), e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
 
 
     private String extractUserIdFromLocationHeader(URI location) {

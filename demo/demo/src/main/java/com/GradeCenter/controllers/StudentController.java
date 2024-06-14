@@ -1,6 +1,7 @@
 package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.StudentDto;
+import com.GradeCenter.dtos.StudentFullReturnDto;
 import com.GradeCenter.dtos.StudentUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.StudentService;
@@ -24,6 +25,12 @@ public class StudentController {
     @PreAuthorize("hasRole('admin')")
     public List<StudentDto> getAllStudents() {
         return studentService.getAllStudents();
+    }
+
+    @GetMapping("/full")
+    @PreAuthorize("hasRole('admin')")
+    public List<StudentFullReturnDto> getAllStudentsFull() {
+        return studentService.getAllStudentsFull();
     }
 
     @GetMapping("/me")

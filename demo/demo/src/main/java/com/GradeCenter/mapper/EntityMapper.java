@@ -39,13 +39,12 @@ public class EntityMapper {
         if (director.getSchool() != null){
             directorDto.setSchoolID(director.getSchool().getId());
         }
-
-
         return directorDto;
     }
 
     public TeacherDto mapToTeacherDto(Teacher teacher){
         TeacherDto teacherDto = new TeacherDto();
+        teacherDto.setUserID(teacher.getUserID());
         if (teacher.getCourses() != null){
             teacherDto.setCourseIds(teacher.getCourses().stream().map(course -> course.getId()).collect(Collectors.toList()));
         }
@@ -65,7 +64,9 @@ public class EntityMapper {
     public ParentDto mapToParentDto(Parent parent){
         ParentDto parentDto = new ParentDto();
         parentDto.setUserID(parent.getUserID());
-        parentDto.setStudentsID(parent.getStudents().stream().map(student -> student.getId()).collect(Collectors.toList()));
+        if (parent.getStudents() != null){
+            parentDto.setStudentsID(parent.getStudents().stream().map(student -> student.getId()).collect(Collectors.toList()));
+        }
 
         return parentDto;
     }
@@ -74,8 +75,12 @@ public class EntityMapper {
         SchoolDto schoolDto = new SchoolDto();
         schoolDto.setName(school.getName());
         schoolDto.setAddress(school.getAddress());
-        schoolDto.setDirectorId(school.getDirector().getId());
-        schoolDto.setTeachersId(school.getTeachers().stream().map(teacher -> teacher.getId()).collect(Collectors.toList()));
+        if (school.getDirector() != null){
+            schoolDto.setDirectorId(school.getDirector().getId());
+        }
+        if (school.getTeachers() != null){
+            schoolDto.setTeachersId(school.getTeachers().stream().map(teacher -> teacher.getId()).collect(Collectors.toList()));
+        }
 
         return schoolDto;
     }
