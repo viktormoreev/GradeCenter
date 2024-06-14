@@ -7,11 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserRegistrationRequest {
+public class UserRoleUsernameRequest {
 
-    private String username;
-    private String password;
-    private String role;
+    String username;
+    String role;
 
 
 }

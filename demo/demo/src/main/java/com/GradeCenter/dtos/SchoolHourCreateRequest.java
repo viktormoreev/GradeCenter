@@ -2,16 +2,15 @@ package com.GradeCenter.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
-public class UserRegistrationRequest {
+public class SchoolHourCreateRequest {
 
-    private String username;
-    private String password;
-    private String role;
-
-
+    private int hour;
+    private int minute;
 }

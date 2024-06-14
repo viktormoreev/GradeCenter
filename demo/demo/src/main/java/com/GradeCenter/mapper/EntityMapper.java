@@ -22,8 +22,13 @@ public class EntityMapper {
     public StudentDto mapToStudentDto(Student student){
         StudentDto studentDto = new StudentDto();
         studentDto.setUserID(student.getUserID());
-        studentDto.setParentsID(student.getParents().stream().map(parent -> parent.getId()).collect(Collectors.toList()));
-        studentDto.setClassesID(student.getClasses().getId());
+        if (student.getParents() != null){
+            studentDto.setParentsID(student.getParents().stream().map(parent -> parent.getId()).collect(Collectors.toList()));
+        }
+        if (student.getClasses() != null){
+            studentDto.setClassesID(student.getClasses().getId());
+        }
+
 
         return studentDto;
     }
@@ -31,16 +36,28 @@ public class EntityMapper {
     public DirectorDto mapToDirectorDto(Director director){
         DirectorDto directorDto = new DirectorDto();
         directorDto.setUserID(director.getUserID());
-        directorDto.setSchoolID(director.getSchool().getId());
+        if (director.getSchool() != null){
+            directorDto.setSchoolID(director.getSchool().getId());
+        }
+
 
         return directorDto;
     }
 
     public TeacherDto mapToTeacherDto(Teacher teacher){
         TeacherDto teacherDto = new TeacherDto();
-        teacherDto.setCourseIds(teacher.getCourses().stream().map(course -> course.getId()).collect(Collectors.toList()));
-        teacherDto.setSchoolId(teacher.getSchool().getId());
-        teacherDto.setQualificationsIds(teacher.getQualifications().stream().map(qualification -> qualification.getId()).collect(Collectors.toList()));
+        if (teacher.getCourses() != null){
+            teacherDto.setCourseIds(teacher.getCourses().stream().map(course -> course.getId()).collect(Collectors.toList()));
+        }
+
+        if (teacher.getSchool() != null){
+            teacherDto.setSchoolId(teacher.getSchool().getId());
+        }
+
+        if (teacher.getQualifications() != null){
+            teacherDto.setQualificationsIds(teacher.getQualifications().stream().map(qualification -> qualification.getId()).collect(Collectors.toList()));
+        }
+
 
         return teacherDto;
     }
