@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AbsenceDto {
-    private long studentId;
-    private long courseId;
+public class AbsenceStudentViewDto {
+    private String courseName;
     private LocalDate date;
 }
