@@ -10,6 +10,7 @@ import com.GradeCenter.repository.StudentRepository;
 import com.GradeCenter.repository.StudyGroupRepository;
 import com.GradeCenter.service.CourseService;
 import com.GradeCenter.service.StudentService;
+import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,10 +120,10 @@ public class StudentServiceImpl implements StudentService {
             if (keycloakUser != null) {
                 studentFullDto.setUsername(keycloakUser.getUsername());
             }
-
-            studentFullDto.setGrade(""); // Set grade appropriately
+            studentFullDto.setCourses(courseService.fetchCourseByStudentId(student.getId()));
+            studentFullDto.setGrade(student.getClasses().getName());
             studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
-            studentFullDto.setAbsences(0); // Set absences appropriately
+            studentFullDto.setAbsences(studentFullDto.getCourses().stream().mapToInt(course-> course.getAbsences().size()).sum());
 
             List<String> parentIDs = student.getParents().stream()
                     .map(Parent::getUserID)
@@ -134,10 +135,39 @@ public class StudentServiceImpl implements StudentService {
                     .collect(Collectors.toList());
 
             studentFullDto.setParent(parentNames);
-            studentFullDto.setCourses(courseService.fetchCourseByStudentId(student.getId()));
 
             return studentFullDto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public StudentFullReturnDto getFullStudentById(Long id) {
+        Optional<Student> optionalStudent = studentRepository.findById(id);
+
+        if(optionalStudent.isPresent()){
+            Student student = optionalStudent.get();
+            StudentFullReturnDto studentFullDto = new StudentFullReturnDto();
+            studentFullDto.setId(student.getId());
+
+            studentFullDto.setCourses(courseService.fetchCourseByStudentId(student.getId()));
+            studentFullDto.setGrade(student.getClasses().getName());
+            studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
+            studentFullDto.setAbsences(studentFullDto.getCourses().stream().mapToInt(course-> course.getAbsences().size()).sum());
+
+            List<String> parentIDs = student.getParents().stream()
+                    .map(Parent::getUserID)
+                    .collect(Collectors.toList());
+
+            List<UserRepresentation> parentUsers = keycloakAdminClientService.getUsersFromIDs(parentIDs);
+            List<String> parentNames = parentUsers.stream()
+                    .map(UserRepresentation::getUsername)
+                    .collect(Collectors.toList());
+
+            studentFullDto.setParent(parentNames);
+
+            return studentFullDto;
+        }
+        else throw new EntityNotFoundException("Student with that id is not found");
     }
 
     @Override

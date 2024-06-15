@@ -25,4 +25,6 @@ public interface StudentService {
     StudentDto updateStudentUID(String userID, StudentUpdateDto studentDto);
 
     List<StudentFullReturnDto> getAllStudentsFull();
+
+    StudentFullReturnDto getFullStudentById(Long id);
 }
