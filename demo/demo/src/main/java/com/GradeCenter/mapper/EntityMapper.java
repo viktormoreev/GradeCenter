@@ -124,6 +124,16 @@ public class EntityMapper {
         return schoolList.stream().map(this::mapToSchoolDto).collect(Collectors.toList());
     }
 
+    public StudyGroupDto mapToStudyGroupDto(StudyGroup studyGroup){
+        StudyGroupDto studyGroupDto = new StudyGroupDto();
+        modelMapper.map(studyGroup, studyGroupDto);
+
+        return studyGroupDto;
+    }
+
+    public List<StudyGroupDto> mapToStudyGroupDtoList(List<StudyGroup> studyGroupList){
+        return studyGroupList.stream().map(this::mapToStudyGroupDto).collect(Collectors.toList());
+    }
     public List<AbsenceDto> mapToAbsenceListDto(List<Absence> absenceList){
         return absenceList.stream().map(this::mapToAbsenceDto).collect(Collectors.toList());
     }
