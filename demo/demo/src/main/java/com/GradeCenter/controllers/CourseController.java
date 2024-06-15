@@ -1,6 +1,7 @@
 package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.CourseDto;
+import com.GradeCenter.dtos.StudentCourseDto;
 import com.GradeCenter.entity.Course;
 import com.GradeCenter.service.CourseService;
 import jakarta.validation.Valid;
@@ -34,6 +35,19 @@ public class CourseController {
         return ResponseEntity.ok(course);
     }
 
+    @GetMapping("/studentId={id}")
+    public ResponseEntity<List<StudentCourseDto>> fetchCourseByStudentId(@PathVariable("id") Long studentId){
+        List<StudentCourseDto> courses = courseService.fetchCourseByStudentId(studentId);
+        return ResponseEntity.ok(courses);
+    }
+
+
+    @GetMapping("/studyGroupId={id}")
+    public ResponseEntity<List<CourseDto>> fetchCourseByStudyGroupId(@PathVariable("id") Long studyGroupId){
+        List<CourseDto> courses = courseService.fetchCourseByStudyGroupId(studyGroupId);
+        return ResponseEntity.ok(courses);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<CourseDto> updateCourseById(@PathVariable("id") Long courseId){
         return ResponseEntity.ok(courseService.updateCourseById(courseId));
@@ -44,6 +58,8 @@ public class CourseController {
         courseService.deleteCourseById(companyId);
         return ResponseEntity.ok("Course was successfully deleted!");
     }
+
+
 
 
 }

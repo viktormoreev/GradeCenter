@@ -26,7 +26,12 @@ public class Course extends IdGenerator{
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Teacher> teachers;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "courses_study_groups",
+            joinColumns = @JoinColumn(name = "courses_id"),
+            inverseJoinColumns = @JoinColumn(name = "study_groups_id")
+    )
     private List<StudyGroup> studyGroups;
 
     @ManyToOne(fetch = FetchType.LAZY)

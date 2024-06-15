@@ -1,8 +1,11 @@
 package com.GradeCenter.service.implementation;
 
+import com.GradeCenter.dtos.StudyGroupCreateRequest;
 import com.GradeCenter.dtos.StudyGroupDto;
+import com.GradeCenter.entity.School;
 import com.GradeCenter.entity.StudyGroup;
 import com.GradeCenter.mapper.EntityMapper;
+import com.GradeCenter.repository.SchoolRepository;
 import com.GradeCenter.repository.StudyGroupRepository;
 import com.GradeCenter.service.StudyGroupService;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,13 +21,26 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     @Autowired
     private StudyGroupRepository studyGroupRepository;
 
+    @Autowired
+    private SchoolRepository schoolRepository;
+
     @Override
-    public StudyGroupDto saveStudyGroup(StudyGroup studyGroup) {
-        return entityMapper.mapToStudyGroupDto(studyGroupRepository.save(studyGroup));
+    public StudyGroupDto saveStudyGroupInSchool(StudyGroupCreateRequest studyGroup) {
+        Optional<School> optionalSchool = schoolRepository.findById(studyGroup.getSchoolId());
+        if(optionalSchool.isPresent()){
+            School school = optionalSchool.get();
+            StudyGroup newStudyGroup= new StudyGroup();
+            newStudyGroup.setName(studyGroup.getName());
+            school.getStudyGroups().add(newStudyGroup);
+            schoolRepository.save(school);
+            return entityMapper.mapToStudyGroupDto(studyGroupRepository.save(newStudyGroup));
+
+        }
+        throw new EntityNotFoundException("School is not found");
     }
 
     @Override
-    public List<StudyGroupDto> fetchStudyGroup() {
+    public List<StudyGroupDto> fetchStudyGroups() {
         return entityMapper.mapToStudyGroupDtoList(studyGroupRepository.findAll());
     }
 

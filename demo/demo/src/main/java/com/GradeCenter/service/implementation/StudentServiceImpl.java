@@ -8,6 +8,7 @@ import com.GradeCenter.mapper.EntityMapper;
 import com.GradeCenter.repository.ParentRepository;
 import com.GradeCenter.repository.StudentRepository;
 import com.GradeCenter.repository.StudyGroupRepository;
+import com.GradeCenter.service.CourseService;
 import com.GradeCenter.service.StudentService;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -36,6 +37,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     private KeycloakAdminClientService keycloakAdminClientService;
+
+    @Autowired
+    private CourseService courseService;
 
     @Override
     public List<StudentDto> getAllStudents() {
@@ -130,9 +134,7 @@ public class StudentServiceImpl implements StudentService {
                     .collect(Collectors.toList());
 
             studentFullDto.setParent(parentNames);
-            
-            studentFullDto.setGrades(List.of(new SmallGradeDto(5.0), new SmallGradeDto(2.0))); // Set grades appropriately
-            studentFullDto.setCourses(List.of(new CourseDto("math"))); // Set courses appropriately
+            studentFullDto.setCourses(courseService.fetchCourseByStudentId(student.getId()));
 
             return studentFullDto;
         }).collect(Collectors.toList());
