@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
+public class DirectorDto {
 
-    private Double grade;
-    private Double studentID;
-    private Double courseID;
-
+    private String userID;
+    private Long schoolID;
 }

@@ -9,10 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
+public class SwitchUserRoleRequest {
 
-    private Double grade;
-    private Double studentID;
-    private Double courseID;
-
+    String userID;
+    String role;
 }

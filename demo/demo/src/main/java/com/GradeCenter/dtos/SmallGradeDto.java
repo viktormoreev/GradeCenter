@@ -9,10 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
-
-    private Double grade;
-    private Double studentID;
-    private Double courseID;
-
+public class SmallGradeDto {
+    private double grade;
 }

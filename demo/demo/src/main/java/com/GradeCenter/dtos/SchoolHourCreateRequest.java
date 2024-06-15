@@ -7,12 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
+@AllArgsConstructor
+public class SchoolHourCreateRequest {
 
-    private Double grade;
-    private Double studentID;
-    private Double courseID;
-
+    private int hour;
+    private int minute;
 }

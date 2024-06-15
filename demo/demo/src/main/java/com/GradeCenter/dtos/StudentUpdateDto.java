@@ -5,14 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
+public class StudentUpdateDto {
 
-    private Double grade;
-    private Double studentID;
-    private Double courseID;
-
+    private List<Long> parentsID;
+    private Long classesID;
 }

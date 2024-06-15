@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
+public class UserUpdateCredentialsRequest {
 
-    private Double grade;
-    private Double studentID;
-    private Double courseID;
+    private String userID;
+    private String username;
+    private String password;
 
 }
