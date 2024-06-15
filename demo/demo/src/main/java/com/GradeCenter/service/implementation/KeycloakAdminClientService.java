@@ -10,6 +10,7 @@ import com.GradeCenter.service.TeacherService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -40,37 +41,27 @@ public class KeycloakAdminClientService {
 
     private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminClientService.class);
 
-    private static final List<String> VALID_ROLES = Arrays.asList("admin", "director", "teacher", "parent", "student");
+
 
     @Value("${keycloak.auth-server-url}")
-    private String keycloakAdminUrl;
+    public String keycloakAdminUrl;
 
     @Value("${keycloak.realm}")
-    private String keycloakRealm;
+    public String keycloakRealm;
 
     @Value("${keycloak.resource}")
-    private String clientId;
+    public String clientId;
 
     @Value("${keycloak.admin.username}")
-    private String keycloakAdminUsername;
+    public String keycloakAdminUsername;
 
     @Value("${keycloak.admin.password}")
-    private String keycloakAdminPassword;
+    public String keycloakAdminPassword;
 
     @Autowired
-    private Keycloak keycloak;
+    public Keycloak keycloak;
 
-    @Autowired
-    private StudentService studentService;
-
-    @Autowired
-    private DirectorService directorService;
-
-    @Autowired
-    private TeacherService teacherService;
-
-    @Autowired
-    private ParentService parentService;
+    public static final List<String> VALID_ROLES = Arrays.asList("admin", "director", "teacher", "parent", "student");
 
 
     private final RestTemplate restTemplate;
@@ -112,6 +103,15 @@ public class KeycloakAdminClientService {
             throw new RuntimeException("Failed to login user", e);
         }
     }
+    // Fetch a user with uesrname from the keycloak server
+    private UserRepresentation getUserFromUsername(String username) {
+        return keycloak.realm(keycloakRealm).users().search(username).get(0);
+    }
+
+    // Fetch a user with userid from the keycloak server
+    private UserRepresentation getUserFromUserID(String userId) {
+        return keycloak.realm(keycloakRealm).users().get(userId).toRepresentation();
+    }
 
 
     public ApiResponse<String> createUser(String username, String password) {
@@ -141,44 +141,10 @@ public class KeycloakAdminClientService {
         }
     }
 
-    public ApiResponse<String> assignRole(String userId, String roleName) {
-        if (userId == null || userId.isEmpty() || roleName == null || roleName.isEmpty()) {
-            return new ApiResponse<>(false, "User ID or role name cannot be null or empty", null);
-        }
-
-        try {
-            RoleRepresentation role = keycloak.realm(keycloakRealm).roles().get(roleName).toRepresentation();
-            if (role == null) {
-                return new ApiResponse<>(false, "Role not found", null);
-            }
-
-            UserResource userResource = keycloak.realm(keycloakRealm).users().get(userId);
-            if (userResource == null) {
-                return new ApiResponse<>(false, "User not found", null);
-            }
-
-            userResource.roles().realmLevel().add(Collections.singletonList(role));
-
-            // Create respective entity in the database
-            createEntityForRole(userId, roleName);
-
-            return new ApiResponse<>(true, "Role assigned successfully", null);
-        } catch (Exception e) {
-            logger.error("Error assigning role: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Failed to assign role: " + e.getMessage(), null);
-        }
-    }
 
 
-    public ApiResponse<String> assignRoleUsername(String username, String roleName) {
-        try {
-            UserRepresentation user = keycloak.realm(keycloakRealm).users().search(username).get(0);
-            return assignRole(user.getId(), roleName);
-        } catch (Exception e) {
-            logger.error("Error assigning role by username: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Failed to assign role by username", null);
-        }
-    }
+
+
 
     public ApiResponse<String> deleteUser(String userId) {
         try {
@@ -224,19 +190,6 @@ public class KeycloakAdminClientService {
         }
     }
 
-    public ApiResponse<String> removeRole(String userId, String roleName) {
-        try {
-            RoleRepresentation role = keycloak.realm(keycloakRealm).roles().get(roleName).toRepresentation();
-            keycloak.realm(keycloakRealm).users().get(userId).roles().realmLevel().remove(Collections.singletonList(role));
-
-            deleteEntityForRole(userId, roleName);
-
-            return new ApiResponse<>(true, "Role removed successfully", null);
-        } catch (Exception e) {
-            logger.error("Error removing role: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Failed to remove role", null);
-        }
-    }
 
 
     public ApiResponse<UserInfoResponse> getUserInfo(Jwt jwt) {
@@ -282,71 +235,8 @@ public class KeycloakAdminClientService {
         }
     }
 
-    public ApiResponse<String> switchUserRole(String userId, String newRoleName) {
-        if (userId == null || userId.isEmpty() || newRoleName == null || newRoleName.isEmpty()) {
-            return new ApiResponse<>(false, "User ID or new role name cannot be null or empty", null);
-        }
-
-        if (!VALID_ROLES.contains(newRoleName)) {
-            return new ApiResponse<>(false, "Invalid new role name", null);
-        }
-
-        try {
-            UserResource userResource = keycloak.realm(keycloakRealm).users().get(userId);
-            List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listAll();
-            List<RoleRepresentation> rolesToRemove = new ArrayList<>();
-
-            // Identify and remove current roles
-            for (RoleRepresentation role : currentRoles) {
-                if (VALID_ROLES.contains(role.getName())) {
-                    rolesToRemove.add(role);
-                    // Delete respective entity
-                    deleteEntityForRole(userId, role.getName());
-                }
-            }
-
-            if (!rolesToRemove.isEmpty()) {
-                userResource.roles().realmLevel().remove(rolesToRemove);
-            }
-
-            // Assign new role
-            RoleRepresentation newRole = keycloak.realm(keycloakRealm).roles().get(newRoleName).toRepresentation();
-            userResource.roles().realmLevel().add(Collections.singletonList(newRole));
-
-            // Create respective entity
-            createEntityForRole(userId, newRoleName);
-
-            return new ApiResponse<>(true, "Role switched successfully", null);
-        } catch (Exception e) {
-            logger.error("Error switching role: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Failed to switch role: " + e.getMessage(), null);
-        }
-    }
 
 
-    public ApiResponse<String> switchUserRoleByUsername(String username, String newRoleName) {
-        if (username == null || username.isEmpty() || newRoleName == null || newRoleName.isEmpty()) {
-            return new ApiResponse<>(false, "Username or new role name cannot be null or empty", null);
-        }
-
-        if (!VALID_ROLES.contains(newRoleName)) {
-            return new ApiResponse<>(false, "Invalid new role name", null);
-        }
-
-        try {
-            // Search for the user by username
-            List<UserRepresentation> users = keycloak.realm(keycloakRealm).users().search(username);
-            if (users == null || users.isEmpty()) {
-                return new ApiResponse<>(false, "User not found", null);
-            }
-
-            UserRepresentation user = users.get(0);
-            return switchUserRole(user.getId(), newRoleName);
-        } catch (Exception e) {
-            logger.error("Error switching role: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Failed to switch role: " + e.getMessage(), null);
-        }
-    }
 
     public List<UserRepresentation> getUsersFromIDs(List<String> userIds) {
         return userIds.parallelStream()
@@ -395,40 +285,7 @@ public class KeycloakAdminClientService {
         }
     }
 
-    private void createEntityForRole(String userId, String roleName) {
-        switch (roleName.toLowerCase()) {
-            case "director":
-                directorService.addDirector(new UserIDRequest(userId));
-                break;
-            case "teacher":
-                teacherService.addTeacher(new UserIDRequest(userId));
-                break;
-            case "parent":
-                parentService.addParent(new UserIDRequest(userId));
-                break;
-            case "student":
-                studentService.addStudent(new UserIDRequest(userId));
-                break;
-        }
-    }
 
-    private void deleteEntityForRole(String userId, String roleName) {
-        switch (roleName.toLowerCase()) {
-            case "director":
-                directorService.deleteDirectorUID(userId);
-                break;
-            case "teacher":
-                teacherService.deleteTeacherUID(userId);
-                break;
-            case "parent":
-                parentService.deleteParentUID(userId);
-                break;
-            case "student":
-                studentService.deleteStudentUID(userId);
-                break;
-            // No entity deletion for admin
-        }
-    }
 
 
 
