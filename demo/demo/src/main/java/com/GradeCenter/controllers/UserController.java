@@ -2,6 +2,8 @@ package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.*;
 import com.GradeCenter.service.implementation.KeycloakAdminClientService;
+import com.GradeCenter.service.implementation.UserEntityHandlingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,8 +20,11 @@ public class UserController {
 
     private final KeycloakAdminClientService keycloakAdminClientService;
 
-    public UserController(KeycloakAdminClientService keycloakAdminClientService) {
+    private final UserEntityHandlingService userEntityHandlingService;
+
+    public UserController(KeycloakAdminClientService keycloakAdminClientService, UserEntityHandlingService userEntityHandlingService) {
         this.keycloakAdminClientService = keycloakAdminClientService;
+        this.userEntityHandlingService = userEntityHandlingService;
     }
 
     @PostMapping("/register")
@@ -31,7 +36,7 @@ public class UserController {
         }
 
         String userId = response.getData();
-        ApiResponse<String> roleResponse = keycloakAdminClientService.assignRole(userId, request.getRole());
+        ApiResponse<String> roleResponse = userEntityHandlingService.assignRole(userId, request.getRole());
         if (!roleResponse.isSuccess()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(roleResponse.getMessage());
         }
@@ -62,7 +67,7 @@ public class UserController {
     @Deprecated
     @PostMapping("/assign-role")
     public ResponseEntity<String> assignRoleStudent(@RequestBody UserRoleRequest userAssignRoleRequest) {
-        ApiResponse<String> response = keycloakAdminClientService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
+        ApiResponse<String> response = userEntityHandlingService.assignRole(userAssignRoleRequest.getUserID(), userAssignRoleRequest.getRole());
         if (response.isSuccess()) {
             return ResponseEntity.ok(response.getMessage());
         } else {
@@ -73,7 +78,7 @@ public class UserController {
     @Deprecated
     @PostMapping("/assign-role-username")
     public ResponseEntity<String> assignRoleByUsername(@RequestBody UserRoleUsernameRequest userAssignRoleUsernameRequest) {
-        ApiResponse<String> response = keycloakAdminClientService.assignRoleUsername(userAssignRoleUsernameRequest.getUsername(), userAssignRoleUsernameRequest.getRole());
+        ApiResponse<String> response = userEntityHandlingService.assignRoleUsername(userAssignRoleUsernameRequest.getUsername(), userAssignRoleUsernameRequest.getRole());
         if (response.isSuccess()) {
             return ResponseEntity.ok(response.getMessage());
         } else {
@@ -113,7 +118,7 @@ public class UserController {
 
     @PostMapping("/remove-role")
     public ResponseEntity<String> removeRole(@RequestBody UserRoleRequest userRemoveRoleRequest) {
-        ApiResponse<String> response = keycloakAdminClientService.removeRole(userRemoveRoleRequest.getUserID(), userRemoveRoleRequest.getRole());
+        ApiResponse<String> response = userEntityHandlingService.removeRole(userRemoveRoleRequest.getUserID(), userRemoveRoleRequest.getRole());
         if (response.isSuccess()) {
             return ResponseEntity.ok(response.getMessage());
         } else {
@@ -138,7 +143,7 @@ public class UserController {
 
     @PatchMapping("/switch-role")
     public ResponseEntity<String> switchUserRole(@RequestBody SwitchUserRoleRequest switchUserRoleRequest) {
-        ApiResponse<String> response = keycloakAdminClientService.switchUserRole(
+        ApiResponse<String> response = userEntityHandlingService.switchUserRole(
                 switchUserRoleRequest.getUserID(),
                 switchUserRoleRequest.getRole()
         );
@@ -151,7 +156,7 @@ public class UserController {
 
     @PatchMapping("/switch-role-username")
     public ResponseEntity<String> switchUserRoleByUsername(@RequestBody SwitchUserUsernameRoleRequest switchUserRoleRequest) {
-        ApiResponse<String> response = keycloakAdminClientService.switchUserRoleByUsername(
+        ApiResponse<String> response = userEntityHandlingService.switchUserRoleByUsername(
                 switchUserRoleRequest.getUsername(),
                 switchUserRoleRequest.getRole()
         );
