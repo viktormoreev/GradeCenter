@@ -26,8 +26,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Course saveSubject(Course course) {
-        return courseRepository.save(course);
+    public CourseDto saveCourse(Course course) {
+        return entityMapper.mapToCourseDto(courseRepository.save(course));
     }
 
     @Override
@@ -38,6 +38,21 @@ public class CourseServiceImpl implements CourseService {
         }
         else throw new EntityNotFoundException("Course is not found");
 
+    }
+
+    @Override
+    public CourseDto updateCourseById(Long courseId) {
+        Optional<Course> course = courseRepository.findById(courseId);
+        if(course.isPresent()){
+            return entityMapper.mapToCourseDto(courseRepository.save(course.get()));
+        }
+        else throw new EntityNotFoundException("Course is not found");
+    }
+
+    @Override
+    public boolean deleteCourseById(Long courseId) {
+        courseRepository.deleteById(courseId);
+        return true;
     }
 
 
