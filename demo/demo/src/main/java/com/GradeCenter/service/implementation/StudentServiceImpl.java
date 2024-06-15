@@ -116,9 +116,9 @@ public class StudentServiceImpl implements StudentService {
                 studentFullDto.setUsername(keycloakUser.getUsername());
             }
 
-            studentFullDto.setGrade(""); // Set grade appropriately
+            studentFullDto.setGrade("");
             studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
-            studentFullDto.setAbsences(0); // Set absences appropriately
+            studentFullDto.setAbsences(0);
 
             List<String> parentIDs = student.getParents().stream()
                     .map(Parent::getUserID)

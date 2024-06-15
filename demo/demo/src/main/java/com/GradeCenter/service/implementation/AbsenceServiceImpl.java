@@ -26,16 +26,16 @@ import java.util.stream.Collectors;
 public class AbsenceServiceImpl implements AbsenceService {
 
     @Autowired
-    EntityMapper entityMapper;
+    private EntityMapper entityMapper;
 
     @Autowired
-    AbsenceRepository absenceRepository;
+    private AbsenceRepository absenceRepository;
 
     @Autowired
-    StudentRepository studentRepository;
+    private StudentRepository studentRepository;
 
     @Autowired
-    CourseRepository courseRepository;
+    private CourseRepository courseRepository;
 
     @Override
     public List<AbsenceDto> getAllAbsences() {
