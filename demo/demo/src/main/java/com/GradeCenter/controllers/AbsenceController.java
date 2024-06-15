@@ -2,6 +2,8 @@ package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.AbsenceDto;
 import com.GradeCenter.dtos.AbsenceStudentViewDto;
+import com.GradeCenter.dtos.AbsenceTeacherViewDto;
+import com.GradeCenter.exceptions.AbsenceNotFoundException;
 import com.GradeCenter.exceptions.CourseNotFoundException;
 import com.GradeCenter.exceptions.StudentNotFoundException;
 import com.GradeCenter.service.AbsenceService;
@@ -23,7 +25,7 @@ public class AbsenceController {
     private AbsenceService absenceService;
 
     @GetMapping
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'director', 'teacher')")
     public List<AbsenceDto> getAllAbsences() {
         return absenceService.getAllAbsences();
     }
@@ -36,13 +38,13 @@ public class AbsenceController {
 
         List<AbsenceStudentViewDto> absences = absenceService.getPersonalStudentAbsences(userId);
         if (absences.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(absences);
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'director', 'teacher')")
     public ResponseEntity<List<AbsenceDto>> getAbsencesByStudentId(@PathVariable long studentId) throws StudentNotFoundException {
         List<AbsenceDto> absences = absenceService.getAllAbsencesByStudentIdForAdmin(studentId);
         if (absences.isEmpty()) {
@@ -52,14 +54,14 @@ public class AbsenceController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'director', 'teacher')")
     public ResponseEntity<AbsenceDto> createAbsence(@Valid @RequestBody AbsenceDto absenceDto) throws CourseNotFoundException, StudentNotFoundException {
         AbsenceDto createdAbsence = absenceService.createAbsence(absenceDto);
         return ResponseEntity.ok(createdAbsence);
     }
 
     @DeleteMapping("/id={id}")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'director', 'teacher')")
     public ResponseEntity<String> deleteAbsenceById(@PathVariable("id") Long id) {
         boolean isDeleted = absenceService.deleteAbsenceById(id);
         if (isDeleted) {
@@ -67,6 +69,27 @@ public class AbsenceController {
         } else {
             return ResponseEntity.status(404).body("Failed to delete absence");
         }
+    }
+
+    @PutMapping("/id={id}")
+    @PreAuthorize("hasAnyRole('admin', 'director', 'teacher')")
+    public ResponseEntity<AbsenceDto> updateAbsence(@PathVariable("id") Long id, @Valid @RequestBody AbsenceDto absenceDto) {
+        try {
+            AbsenceDto updatedAbsence = absenceService.updateAbsence(id, absenceDto);
+            return ResponseEntity.ok(updatedAbsence);
+        } catch (AbsenceNotFoundException | StudentNotFoundException | CourseNotFoundException e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+
+    @GetMapping("/teacher/student/{studentId}")
+    @PreAuthorize("hasAnyRole('admin', 'director', 'teacher')")
+    public ResponseEntity<List<AbsenceTeacherViewDto>> getTeacherViewAbsencesByStudentId(@PathVariable long studentId) {
+        List<AbsenceTeacherViewDto> absences = absenceService.getTeacherViewAbsencesByStudentId(studentId);
+        if (absences.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(absences);
     }
 
 

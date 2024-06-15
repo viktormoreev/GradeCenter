@@ -2,9 +2,11 @@ package com.GradeCenter.service.implementation;
 
 import com.GradeCenter.dtos.AbsenceDto;
 import com.GradeCenter.dtos.AbsenceStudentViewDto;
+import com.GradeCenter.dtos.AbsenceTeacherViewDto;
 import com.GradeCenter.entity.Absence;
 import com.GradeCenter.entity.Course;
 import com.GradeCenter.entity.Student;
+import com.GradeCenter.exceptions.AbsenceNotFoundException;
 import com.GradeCenter.exceptions.CourseNotFoundException;
 import com.GradeCenter.exceptions.StudentNotFoundException;
 import com.GradeCenter.mapper.EntityMapper;
@@ -102,5 +104,38 @@ public class AbsenceServiceImpl implements AbsenceService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public AbsenceDto updateAbsence(Long id, AbsenceDto absenceDto) throws StudentNotFoundException, CourseNotFoundException, AbsenceNotFoundException {
+        Absence existingAbsence = absenceRepository.findById(id)
+                .orElseThrow(() -> new AbsenceNotFoundException("Absence not found"));
+
+        Student student = studentRepository.findById(absenceDto.getStudentId())
+                .orElseThrow(() -> new StudentNotFoundException("Student not found"));
+
+        Course course = courseRepository.findById(absenceDto.getCourseId())
+                .orElseThrow(() -> new CourseNotFoundException("Course not found"));
+
+        existingAbsence.setStudent(student);
+        existingAbsence.setCourse(course);
+        existingAbsence.setDate(absenceDto.getDate());
+
+        Absence updatedAbsence = absenceRepository.save(existingAbsence);
+
+        return entityMapper.mapToAbsenceDto(updatedAbsence);
+    }
+
+    @Override
+    public List<AbsenceTeacherViewDto> getTeacherViewAbsencesByStudentId(long studentId) {
+        return absenceRepository.findByStudentId(studentId)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(absence -> {
+                    String studentUserId = absence.getStudent().getUserID();
+                    String courseName = absence.getCourse().getName();
+                    return new AbsenceTeacherViewDto(studentUserId, courseName, absence.getDate());
+                })
+                .collect(Collectors.toList());
     }
 }

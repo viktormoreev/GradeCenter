@@ -7,11 +7,12 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AbsenceStudentViewDto {
+public class AbsenceTeacherViewDto {
+    private String studentUserId;
     private String courseName;
     private LocalDate date;
 }
