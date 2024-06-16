@@ -18,7 +18,7 @@ public class StudentFullReturnDto {
     private String grade;
     private List<String> parent;
     private String school;
-    private List<SmallGradeDto> grades;
-    private List<CourseDto> courses;
+    private List<StudentCourseDto> courses;
     private Integer absences;
+
 }

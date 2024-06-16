@@ -33,6 +33,16 @@ public class StudentController {
         return studentService.getAllStudentsFull();
     }
 
+    @GetMapping("full/id={id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<StudentFullReturnDto> getFullStudentById(@PathVariable("id") Long id) {
+        StudentFullReturnDto student = studentService.getFullStudentById(id);
+        if (student == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(student);
+    }
+
     @GetMapping("/me")
     @PreAuthorize("hasRole('student')")
     public ResponseEntity<StudentDto> getPersonalStudent() {

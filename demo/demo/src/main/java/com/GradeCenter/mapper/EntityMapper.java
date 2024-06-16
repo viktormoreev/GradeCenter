@@ -138,6 +138,10 @@ public class EntityMapper {
         return absenceList.stream().map(this::mapToAbsenceDto).collect(Collectors.toList());
     }
 
+    public List<AbsenceDto> mapToAbsenceDtoList(List<Absence> absences){
+        return absences.stream().map(this::mapToAbsenceDto).collect(Collectors.toList());
+    }
+
 
     public Absence mapToAbsenceEntity(AbsenceDto absenceDto, Student student, Course course) {
         return Absence.builder()
@@ -145,5 +149,40 @@ public class EntityMapper {
                 .course(course)
                 .date(absenceDto.getDate())
                 .build();
+    }
+
+    public List<SmallGradeDto> mapToSmallGradeDtoList(List<Grade> grades){
+        return grades.stream().map(this::mapToSmallGradeDto).collect(Collectors.toList());
+    }
+
+
+    public SmallGradeDto mapToSmallGradeDto(Grade grade){
+        SmallGradeDto gradeDto = new SmallGradeDto();
+        modelMapper.map(grade, gradeDto);
+
+        return gradeDto;
+    }
+
+    public List<StudentCourseDto> mapToStudentCourseListDto(List<Course> courses, Long studentId) {
+        return courses.stream().map(course -> mapToStudentCourseDto(course,studentId)).collect(Collectors.toList());
+    }
+
+    public StudentCourseDto mapToStudentCourseDto(Course course, Long studentId) {
+        StudentCourseDto studentCourseDto = new StudentCourseDto();
+        studentCourseDto.setAbsences(mapToAbsenceDtoList(course.getAbsences().stream().filter(absence -> absence.getStudent().getId().equals(studentId)).collect(Collectors.toList())));
+        studentCourseDto.setGrades(mapToSmallGradeDtoList(course.getGrades().stream().filter(grade -> grade.getStudent().getId().equals(studentId)).collect(Collectors.toList())));
+        studentCourseDto.setName(course.getName());
+        return studentCourseDto;
+    }
+
+    public List<CourseTypeDto> mapToCourseTypeListDto(List<CourseType> courseTypes) {
+        return courseTypes.stream().map(this::mapToCourseTypeDto).collect(Collectors.toList());
+    }
+
+    public CourseTypeDto mapToCourseTypeDto(CourseType courseType) {
+        CourseTypeDto courseTypeDto = new CourseTypeDto();
+        modelMapper.map(courseType, courseTypeDto);
+        return courseTypeDto;
+
     }
 }
