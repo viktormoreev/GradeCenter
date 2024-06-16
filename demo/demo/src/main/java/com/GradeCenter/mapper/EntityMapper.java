@@ -128,13 +128,13 @@ public class EntityMapper {
         return grades.stream().map(this::mapToSmallGradeDto).collect(Collectors.toList());
     }
 
-    private AbsenceDto mapToAbsenceDto(Absence absence) {
+    public AbsenceDto mapToAbsenceDto(Absence absence) {
         AbsenceDto absenceDto = new AbsenceDto();
         modelMapper.map(absence, absenceDto);
 
         return absenceDto;
     }
-    private SmallGradeDto mapToSmallGradeDto(Grade grade){
+    public SmallGradeDto mapToSmallGradeDto(Grade grade){
         SmallGradeDto gradeDto = new SmallGradeDto();
         modelMapper.map(grade, gradeDto);
 
@@ -145,7 +145,7 @@ public class EntityMapper {
         return courses.stream().map(course -> mapToStudentCourseDto(course,studentId)).collect(Collectors.toList());
     }
 
-    private StudentCourseDto mapToStudentCourseDto(Course course, Long studentId) {
+    public StudentCourseDto mapToStudentCourseDto(Course course, Long studentId) {
         StudentCourseDto studentCourseDto = new StudentCourseDto();
         studentCourseDto.setAbsences(mapToAbsenceDtoList(course.getAbsences().stream().filter(absence -> absence.getStudent().getId().equals(studentId)).collect(Collectors.toList())));
         studentCourseDto.setGrades(mapToSmallGradeDtoList(course.getGrades().stream().filter(grade -> grade.getStudent().getId().equals(studentId)).collect(Collectors.toList())));
@@ -153,4 +153,13 @@ public class EntityMapper {
         return studentCourseDto;
     }
 
+    public List<CourseTypeDto> mapToCourseTypeListDto(List<CourseType> courseTypes) {
+        return courseTypes.stream().map(this::mapToCourseTypeDto).collect(Collectors.toList());
+    }
+
+    public CourseTypeDto mapToCourseTypeDto(CourseType courseType) {
+        CourseTypeDto courseTypeDto = new CourseTypeDto();
+        modelMapper.map(courseType, courseTypeDto);
+        return courseTypeDto;
+    }
 }

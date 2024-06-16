@@ -36,6 +36,12 @@ public class StudyGroupController {
     }
 
     @PreAuthorize("hasRole('admin')")
+    @GetMapping("/schoolId={id}")
+    public ResponseEntity<List<StudyGroupDto>> fetchStudyGroupBySchoolId(@PathVariable("id") Long schoolId){
+        return ResponseEntity.ok(studyGroupService.fetchStudyGroupsBySchoolId(schoolId));
+    }
+
+    @PreAuthorize("hasRole('admin')")
     @PutMapping("/{id}")
     public ResponseEntity<StudyGroupDto> updateStudyGroupById(@PathVariable("id") Long studyGroupId){
         return ResponseEntity.ok(studyGroupService.updateStudyGroupById(studyGroupId));

@@ -15,4 +15,6 @@ public interface StudyGroupService {
     StudyGroupDto updateStudyGroupById(Long courseId);
 
     void deleteStudyGroupById(Long studyGroupId);
+
+    List<StudyGroupDto> fetchStudyGroupsBySchoolId(Long schoolId);
 }

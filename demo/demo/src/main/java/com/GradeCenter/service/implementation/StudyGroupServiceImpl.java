@@ -66,4 +66,13 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public void deleteStudyGroupById(Long studyGroupId) {
         studyGroupRepository.deleteById(studyGroupId);
     }
+
+    @Override
+    public List<StudyGroupDto> fetchStudyGroupsBySchoolId(Long schoolId) {
+        Optional<School> school = schoolRepository.findById(schoolId);
+        if(school.isPresent()){
+            return entityMapper.mapToStudyGroupDtoList(school.get().getStudyGroups());
+        }
+        return null;
+    }
 }
