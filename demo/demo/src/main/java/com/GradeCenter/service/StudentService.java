@@ -1,9 +1,6 @@
 package com.GradeCenter.service;
 
-import com.GradeCenter.dtos.StudentDto;
-import com.GradeCenter.dtos.StudentFullReturnDto;
-import com.GradeCenter.dtos.StudentUpdateDto;
-import com.GradeCenter.dtos.UserIDRequest;
+import com.GradeCenter.dtos.*;
 
 import java.util.List;
 
@@ -27,4 +24,6 @@ public interface StudentService {
     List<StudentFullReturnDto> getAllStudentsFull();
 
     StudentFullReturnDto getFullStudentById(Long id);
+
+    StudentDto addStudentToStudyGroup(CreateStudentDto studentDto, String userID);
 }

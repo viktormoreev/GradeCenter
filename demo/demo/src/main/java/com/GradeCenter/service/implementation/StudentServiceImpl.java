@@ -175,6 +175,21 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public StudentDto addStudentToStudyGroup(CreateStudentDto studentDto, String userID) {
+        Optional<StudyGroup> studyGroup = studyGroupRepository.findById(studentDto.getStudyGroupId());
+        if(studyGroup.isPresent()){
+            Optional<Student> optionalStudent = studentRepository.findByUserID(userID);
+            if(optionalStudent.isPresent()){
+                Student student = optionalStudent.get();
+                student.setClasses(studyGroup.get());
+                return entityMapper.mapToStudentDto(studentRepository.save(student));
+            }
+            else throw new EntityNotFoundException("Student is not found");
+        }
+        else throw new EntityNotFoundException("Study Group is not found");
+    }
+
+    @Override
     public StudentDto addStudent(UserIDRequest userIDRequest) {
         Student student = Student.builder()
                 .userID(userIDRequest.getUserID())

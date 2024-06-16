@@ -1,9 +1,6 @@
 package com.GradeCenter.controllers;
 
-import com.GradeCenter.dtos.StudentDto;
-import com.GradeCenter.dtos.StudentFullReturnDto;
-import com.GradeCenter.dtos.StudentUpdateDto;
-import com.GradeCenter.dtos.UserIDRequest;
+import com.GradeCenter.dtos.*;
 import com.GradeCenter.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -80,6 +77,13 @@ public class StudentController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<StudentDto> addStudent(@RequestBody UserIDRequest userIDRequest) {
         StudentDto student = studentService.addStudent(userIDRequest);
+        return ResponseEntity.ok(student);
+    }
+
+    @PostMapping("/uid={id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<StudentDto> addStudentToStudyGroup(@PathVariable("id") String userID, @RequestBody CreateStudentDto studentDto) {
+        StudentDto student = studentService.addStudentToStudyGroup(studentDto, userID);
         return ResponseEntity.ok(student);
     }
 

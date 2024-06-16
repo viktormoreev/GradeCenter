@@ -9,8 +9,6 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCourseDto {
-    private String name;
-    private Long courseTypeId;
+public class CreateStudentDto {
     private Long studyGroupId;
 }
