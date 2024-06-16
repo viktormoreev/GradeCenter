@@ -120,10 +120,14 @@ public class StudentServiceImpl implements StudentService {
             if (keycloakUser != null) {
                 studentFullDto.setUsername(keycloakUser.getUsername());
             }
+
+
+
             studentFullDto.setCourses(courseService.fetchCourseByStudentId(student.getId()));
             studentFullDto.setGrade(student.getClasses().getName());
             studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
             studentFullDto.setAbsences(studentFullDto.getCourses().stream().mapToInt(course-> course.getAbsences().size()).sum());
+
 
             List<String> parentIDs = student.getParents().stream()
                     .map(Parent::getUserID)

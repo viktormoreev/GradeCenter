@@ -104,12 +104,12 @@ public class KeycloakAdminClientService {
         }
     }
     // Fetch a user with uesrname from the keycloak server
-    private UserRepresentation getUserFromUsername(String username) {
+    public UserRepresentation getUserFromUsername(String username) {
         return keycloak.realm(keycloakRealm).users().search(username).get(0);
     }
 
     // Fetch a user with userid from the keycloak server
-    private UserRepresentation getUserFromUserID(String userId) {
+    public UserRepresentation getUserFromUserID(String userId) {
         return keycloak.realm(keycloakRealm).users().get(userId).toRepresentation();
     }
 

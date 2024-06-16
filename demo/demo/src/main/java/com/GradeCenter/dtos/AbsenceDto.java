@@ -1,14 +1,17 @@
 package com.GradeCenter.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
-
-@Data
-@NoArgsConstructor
+@Setter
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class AbsenceDto {
+    private Long studentId;
+    private Long courseId;
     private LocalDate date;
 }

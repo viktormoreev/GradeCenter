@@ -5,12 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
+import java.time.LocalDate;
+
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
-    private Double grade;
-    private Long studentId;
-    private Long courseId;
+public class AbsenceStudentViewDto {
+    private String courseName;
+    private LocalDate date;
 }

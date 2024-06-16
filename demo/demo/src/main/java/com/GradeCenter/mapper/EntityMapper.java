@@ -85,6 +85,21 @@ public class EntityMapper {
         return schoolDto;
     }
 
+    public AbsenceDto mapToAbsenceDto(Absence absence){
+        AbsenceDto absenceDto = new AbsenceDto();
+        absenceDto.setCourseId(absence.getCourse().getId());
+        absenceDto.setStudentId(absence.getStudent().getId());
+        absenceDto.setDate(absence.getDate());
+        return absenceDto;
+    }
+
+    public AbsenceStudentViewDto mapToAbsenceStudentViewDto(Absence absence) {
+        return new AbsenceStudentViewDto(
+                absence.getCourse().getName(),
+                absence.getDate()
+        );
+    }
+
     public List<CourseDto> mapToCourseListDto(List<Course> courseList){
         return courseList.stream().map(this::mapToCourseDto).collect(Collectors.toList());
     }
@@ -119,21 +134,44 @@ public class EntityMapper {
     public List<StudyGroupDto> mapToStudyGroupDtoList(List<StudyGroup> studyGroupList){
         return studyGroupList.stream().map(this::mapToStudyGroupDto).collect(Collectors.toList());
     }
+    public List<AbsenceDto> mapToAbsenceListDto(List<Absence> absenceList){
+        return absenceList.stream().map(this::mapToAbsenceDto).collect(Collectors.toList());
+    }
 
     public List<AbsenceDto> mapToAbsenceDtoList(List<Absence> absences){
         return absences.stream().map(this::mapToAbsenceDto).collect(Collectors.toList());
+    }
+
+
+    public Absence mapToAbsenceEntity(AbsenceDto absenceDto, Student student, Course course) {
+        return Absence.builder()
+                .student(student)
+                .course(course)
+                .date(absenceDto.getDate())
+                .build();
+    }
+
+    public GradeDto mapToGradeDto(Grade grade) {
+        return new GradeDto(
+                grade.getGrade(),
+                grade.getStudent().getId(),
+                grade.getCourse().getId()
+        );
+    }
+
+    public Grade mapToGradeEntity(GradeDto gradeDto, Student student, Course course) {
+        return Grade.builder()
+                .student(student)
+                .course(course)
+                .grade(gradeDto.getGrade())
+                .build();
     }
 
     public List<SmallGradeDto> mapToSmallGradeDtoList(List<Grade> grades){
         return grades.stream().map(this::mapToSmallGradeDto).collect(Collectors.toList());
     }
 
-    public AbsenceDto mapToAbsenceDto(Absence absence) {
-        AbsenceDto absenceDto = new AbsenceDto();
-        modelMapper.map(absence, absenceDto);
 
-        return absenceDto;
-    }
     public SmallGradeDto mapToSmallGradeDto(Grade grade){
         SmallGradeDto gradeDto = new SmallGradeDto();
         modelMapper.map(grade, gradeDto);
@@ -165,6 +203,7 @@ public class EntityMapper {
         CourseTypeDto courseTypeDto = new CourseTypeDto();
         modelMapper.map(courseType, courseTypeDto);
         return courseTypeDto;
+
     }
 
 
