@@ -1,19 +1,21 @@
 package com.GradeCenter.service;
 
+import com.GradeCenter.dtos.SchoolCreateRequest;
 import com.GradeCenter.dtos.SchoolDto;
-import com.GradeCenter.entity.School;
+import com.GradeCenter.dtos.TeacherDto;
 
 import java.util.List;
 
 public interface SchoolService {
+    List<SchoolDto> getAllSchools();
 
-    List<SchoolDto> fetchSchoolList();
+    SchoolDto addSchool(SchoolCreateRequest schoolCreateRequest);
 
-    SchoolDto saveSchool(School school);
+    SchoolDto getSchoolById(Long id);
 
-    void deleteSchoolById(Long schoolId);
+    boolean deleteSchool(Long id);
 
-    SchoolDto fetchSchoolById(Long schoolId);
+    SchoolDto updateSchool(Long id, SchoolDto schoolDto);
 
-    SchoolDto updateSchoolById(Long schoolId);
+    List<TeacherDto> getTeachersBySchoolId(Long schoolId);
 }

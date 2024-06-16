@@ -1,18 +1,25 @@
 package com.GradeCenter.service;
 
 import com.GradeCenter.dtos.DirectorDto;
-import com.GradeCenter.entity.Director;
+import com.GradeCenter.dtos.DirectorUpdateDto;
+import com.GradeCenter.dtos.UserIDRequest;
 
 import java.util.List;
 
 public interface DirectorService {
+    List<DirectorDto> getAllDirectors();
 
-    List<DirectorDto> fetchDirectorList();
+    DirectorDto addDirector(UserIDRequest userIDRequest);
 
-    Director saveDirector(Director director);
+    DirectorDto getDirectorById(Long id);
 
-    void deleteDirectorById(Long directorId);
-    DirectorDto fetchDirectorById(Long directorId);
+    DirectorDto getDirectorByUId(String uid);
 
-    DirectorDto updateDirectorById(Long directorId);
+    boolean deleteDirectorUID(String userID);
+
+    boolean deleteDirectorID(Long ID);
+
+    DirectorDto updateDirectorID(Long id, DirectorUpdateDto directorUpdateDto);
+
+    DirectorDto updateDirectorUID(String userID, DirectorUpdateDto directorUpdateDto);
 }

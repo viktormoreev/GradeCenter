@@ -1,12 +1,14 @@
 package com.GradeCenter.controllers;
 
-import com.GradeCenter.dtos.CourseDto;
 import com.GradeCenter.dtos.TeacherDto;
-import com.GradeCenter.entity.Teacher;
+import com.GradeCenter.dtos.TeacherUpdateDto;
+import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.TeacherService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,23 +18,93 @@ import java.util.List;
 public class TeacherController {
 
     @Autowired
-    TeacherService teacherService;
-
-    @PostMapping
-    public ResponseEntity<TeacherDto> addTeacher(@Valid @RequestBody Teacher teacher){
-        return ResponseEntity.ok(teacherService.saveTeacher(teacher));
-    }
+    private TeacherService teacherService;
 
     @GetMapping
-    public ResponseEntity<List<TeacherDto>> fetchTeacherList(){
-        List<TeacherDto> teacherDtoList = teacherService.fetchTeacherList();
-        return ResponseEntity.ok(teacherDtoList);
+    //@PreAuthorize("hasRole('admin')")
+    public List<TeacherDto> getAllTeachers() {
+        return teacherService.getAllTeachers();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TeacherDto> fetchCourseById(@PathVariable("id") Long teacherId){
-        TeacherDto teacherDto = teacherService.fetchTeacherById(teacherId);
-        return ResponseEntity.ok(teacherDto);
+    @GetMapping("/me")
+    //@PreAuthorize("hasRole('teacher')")
+    public ResponseEntity<TeacherDto> getPersonalTeacher() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = jwt.getClaimAsString("sub");
+
+        TeacherDto teacher = teacherService.getTeacherByUId(userId);
+        if (teacher == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(teacher);
     }
 
+    @GetMapping("/id={id}")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<TeacherDto> getTeacherById(@PathVariable("id") Long id) {
+        TeacherDto teacher = teacherService.getTeacherById(id);
+        if (teacher == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(teacher);
+    }
+
+    @GetMapping("/uid={id}")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<TeacherDto> getTeacherByUId(@PathVariable("id") String userID) {
+        TeacherDto teacher = teacherService.getTeacherByUId(userID);
+        if (teacher == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(teacher);
+    }
+
+    @PostMapping
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<TeacherDto> addTeacher(@RequestBody UserIDRequest userIDRequest) {
+        TeacherDto teacher = teacherService.addTeacher(userIDRequest);
+        return ResponseEntity.ok(teacher);
+    }
+
+    @DeleteMapping("/id={id}")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> deleteTeacherId(@PathVariable("id") Long id) {
+        boolean isDeleted = teacherService.deleteTeacherID(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("Teacher deleted successfully");
+        } else {
+            return ResponseEntity.status(404).body("Failed to delete teacher");
+        }
+    }
+
+    @DeleteMapping("/uid={id}")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> deleteTeacherUID(@PathVariable("id") String userID) {
+        boolean isDeleted = teacherService.deleteTeacherUID(userID);
+        if (isDeleted) {
+            return ResponseEntity.ok("Teacher deleted successfully");
+        } else {
+            return ResponseEntity.status(404).body("Failed to delete teacher");
+        }
+    }
+
+    @PutMapping("/id={id}")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<TeacherDto> updateTeacherID(@PathVariable("id") Long id, @RequestBody TeacherUpdateDto teacherUpdateDto) {
+        TeacherDto updatedTeacher = teacherService.updateTeacherID(id, teacherUpdateDto);
+        if (updatedTeacher == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updatedTeacher);
+    }
+
+    @PutMapping("/uid={id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<TeacherDto> updateTeacherUID(@PathVariable("id") String userID, @RequestBody TeacherUpdateDto teacherUpdateDto) {
+        TeacherDto updatedTeacher = teacherService.updateTeacherUID(userID, teacherUpdateDto);
+        if (updatedTeacher == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updatedTeacher);
+    }
 }

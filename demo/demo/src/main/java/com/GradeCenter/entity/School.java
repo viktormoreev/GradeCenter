@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "schools")
 public class School extends IdGenerator{
 
-    @Column
+    @Column(unique = true)
     private String name;
 
     @Column
@@ -25,4 +25,8 @@ public class School extends IdGenerator{
 
     @OneToMany(mappedBy = "school")
     private List<Teacher> teachers;
+
+    @OneToMany(mappedBy = "school")
+    private List<StudyGroup> studyGroups;
+
 }

@@ -8,7 +8,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
+@NoArgsConstructor(/*access = AccessLevel.PROTECTED*/) // Make no-args constructor protected
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
 @Builder
 @Table(name = "study_groups")
@@ -25,5 +25,7 @@ public class StudyGroup extends IdGenerator {
 
     @OneToMany(mappedBy = "classes")
     private List<Student> students;
+
+
 
 }
