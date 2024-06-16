@@ -59,8 +59,12 @@ public class CourseServiceImpl implements CourseService {
     public CourseDto updateCourseById(Long courseId, CreateCourseDto courseDto) {
         Optional<Course> course = courseRepository.findById(courseId);
         if (course.isPresent()) {
-
-            return entityMapper.mapToCourseDto(courseRepository.save(course.get()));
+            Optional<CourseType> courseType = courseTypeRepository.findById(courseDto.getCourseTypeId());
+            if (courseType.isPresent()) {
+                course.get().setCourseType(courseType.get());
+                course.get().setName(courseDto.getName());
+                return entityMapper.mapToCourseDto(courseRepository.save(course.get()));
+            } else throw new EntityNotFoundException("Course Type is not found");
         } else throw new EntityNotFoundException("Course is not found");
     }
 
@@ -93,7 +97,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseTypeDto addCourseType(CourseTypeDto courseTypeDto) {
-        CourseType courseType =  CourseType.builder().name(courseTypeDto.getName()).build();
+        CourseType courseType = CourseType.builder().name(courseTypeDto.getName()).build();
         courseTypeRepository.save(courseType);
         return courseTypeDto;
     }
@@ -106,12 +110,11 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseTypeDto updateCourseTypeById(Long courseTypeId, CourseTypeDto courseTypeDto) {
         Optional<CourseType> optionalCourseType = courseTypeRepository.findById(courseTypeId);
-        if(optionalCourseType.isPresent()){
+        if (optionalCourseType.isPresent()) {
             CourseType courseType = optionalCourseType.get();
             courseType.setName(courseTypeDto.getName());
             return entityMapper.mapToCourseTypeDto(courseTypeRepository.save(courseType));
-        }
-        else throw new EntityNotFoundException("Course Type is not found");
+        } else throw new EntityNotFoundException("Course Type is not found");
     }
 
     @Override

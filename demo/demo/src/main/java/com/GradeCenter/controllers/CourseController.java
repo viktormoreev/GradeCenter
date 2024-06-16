@@ -77,7 +77,7 @@ public class CourseController {
         return ResponseEntity.ok(courseService.updateCourseTypeById(courseTypeId, courseTypeDto));
     }
 
-    @PostMapping("/type")
+    @GetMapping("/type")
     public ResponseEntity<List<CourseTypeDto>> fetchCourseTypeList() {
         return ResponseEntity.ok(courseService.fetchCourseTypeList());
     }
