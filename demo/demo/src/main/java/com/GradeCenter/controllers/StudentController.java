@@ -80,10 +80,10 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
-    @PostMapping("/uid={id}")
+    @PostMapping("/uid={studentId}/toStudyGroup/{studyGroupId}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<StudentDto> addStudentToStudyGroup(@PathVariable("id") String userID, @RequestBody CreateStudentDto studentDto) {
-        StudentDto student = studentService.addStudentToStudyGroup(studentDto, userID);
+    public ResponseEntity<StudentDto> addStudentToStudyGroup(@PathVariable("studentId") String userID, @PathVariable("studyGroupId") Long studyGroupId) {
+        StudentDto student = studentService.addStudentToStudyGroup(studyGroupId, userID);
         return ResponseEntity.ok(student);
     }
 

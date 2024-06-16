@@ -171,8 +171,8 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentDto addStudentToStudyGroup(CreateStudentDto studentDto, String userID) {
-        Optional<StudyGroup> studyGroup = studyGroupRepository.findById(studentDto.getStudyGroupId());
+    public StudentDto addStudentToStudyGroup(Long studyGroupId, String userID) {
+        Optional<StudyGroup> studyGroup = studyGroupRepository.findById(studyGroupId);
         if(studyGroup.isPresent()){
             Optional<Student> optionalStudent = studentRepository.findByUserID(userID);
             if(optionalStudent.isPresent()){

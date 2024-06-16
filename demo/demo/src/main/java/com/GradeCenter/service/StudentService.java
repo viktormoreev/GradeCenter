@@ -25,5 +25,5 @@ public interface StudentService {
 
     StudentFullReturnDto getFullStudentById(Long id);
 
-    StudentDto addStudentToStudyGroup(CreateStudentDto studentDto, String userID);
+    StudentDto addStudentToStudyGroup(Long studyGroupId, String userID);
 }
