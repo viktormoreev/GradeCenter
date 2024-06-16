@@ -237,4 +237,26 @@ public class EntityMapper {
         modelMapper.map(qualification, qualificationDto);
         return qualificationDto;
     }
+
+    public Qualification mapToQualificationEntity(QualificationDto qualificationDto) {
+        return Qualification.builder()
+                .area(qualificationDto.getArea())
+                .build();
+    }
+
+    public QualificationDto mapToQualificationDto(Qualification qualification) {
+        return new QualificationDto(
+                qualification.getId(),
+                qualification.getArea()
+        );
+    }
+
+    public List<QualificationDto> mapToQualificationListDto(List<Qualification> qualifications) {
+        return qualifications.stream()
+                .map(this::mapToQualificationDto)
+                .collect(Collectors.toList());
+    }
+
+
+
 }
