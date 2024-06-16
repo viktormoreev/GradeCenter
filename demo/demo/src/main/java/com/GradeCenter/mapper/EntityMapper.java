@@ -151,6 +151,22 @@ public class EntityMapper {
                 .build();
     }
 
+    public GradeDto mapToGradeDto(Grade grade) {
+        return new GradeDto(
+                grade.getGrade(),
+                grade.getStudent().getId(),
+                grade.getCourse().getId()
+        );
+    }
+
+    public Grade mapToGradeEntity(GradeDto gradeDto, Student student, Course course) {
+        return Grade.builder()
+                .student(student)
+                .course(course)
+                .grade(gradeDto.getGrade())
+                .build();
+    }
+
     public List<SmallGradeDto> mapToSmallGradeDtoList(List<Grade> grades){
         return grades.stream().map(this::mapToSmallGradeDto).collect(Collectors.toList());
     }

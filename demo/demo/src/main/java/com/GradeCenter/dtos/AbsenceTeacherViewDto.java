@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AbsenceTeacherViewDto {
-    private String studentUserId;
+    private String studentName;
     private String courseName;
     private LocalDate date;
 }
