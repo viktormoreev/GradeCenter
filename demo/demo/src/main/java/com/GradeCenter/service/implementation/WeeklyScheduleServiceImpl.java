@@ -1,5 +1,6 @@
 package com.GradeCenter.service.implementation;
 
+import com.GradeCenter.dtos.CreateWeeklyScheduleDto;
 import com.GradeCenter.dtos.WeeklyScheduleDto;
 import com.GradeCenter.entity.Course;
 import com.GradeCenter.entity.SchoolHour;
@@ -34,15 +35,15 @@ public class WeeklyScheduleServiceImpl implements WeeklyScheduleService {
 
 
     @Override
-    public WeeklyScheduleDto saveWeeklySchedule(WeeklyScheduleDto weeklyScheduleDto) {
-        Optional<Course> optionalCourse = courseRepository.findById(weeklyScheduleDto.getCourseId());
+    public WeeklyScheduleDto saveWeeklySchedule(CreateWeeklyScheduleDto createWeeklyScheduleDto) {
+        Optional<Course> optionalCourse = courseRepository.findById(createWeeklyScheduleDto.getCourseId());
         if (optionalCourse.isPresent()) {
-            Optional<StudyGroup> optionalStudyGroup = studyGroupRepository.findById(weeklyScheduleDto.getStudyGroupId());
+            Optional<StudyGroup> optionalStudyGroup = studyGroupRepository.findById(createWeeklyScheduleDto.getStudyGroupId());
             if (optionalStudyGroup.isPresent()) {
-                Optional<SchoolHour> optionalSchoolHour = schoolHourRepository.findById(weeklyScheduleDto.getStartHourId());
+                Optional<SchoolHour> optionalSchoolHour = schoolHourRepository.findById(createWeeklyScheduleDto.getStartHourId());
                 if (optionalSchoolHour.isPresent()) {
                     WeeklySchedule weeklySchedule = WeeklySchedule.builder()
-                            .day(weeklyScheduleDto.getWeekday())
+                            .day(createWeeklyScheduleDto.getWeekday())
                             .course(optionalCourse.get())
                             .schoolClass(optionalStudyGroup.get())
                             .startHour(optionalSchoolHour.get())
@@ -69,24 +70,24 @@ public class WeeklyScheduleServiceImpl implements WeeklyScheduleService {
     }
 
     @Override
-    public WeeklyScheduleDto updateWeeklyScheduleById(Long id, WeeklyScheduleDto weeklyScheduleDto) {
+    public WeeklyScheduleDto updateWeeklyScheduleById(Long id, CreateWeeklyScheduleDto createWeeklyScheduleDto) {
         Optional<WeeklySchedule> optionalWeeklySchedule = weeklyScheduleRepository.findById(id);
         if (optionalWeeklySchedule.isPresent()) {
             WeeklySchedule weeklySchedule = optionalWeeklySchedule.get();
-            Optional<Course> optionalCourse = courseRepository.findById(weeklyScheduleDto.getCourseId());
+            Optional<Course> optionalCourse = courseRepository.findById(createWeeklyScheduleDto.getCourseId());
             if (optionalCourse.isPresent()) {
                 weeklySchedule.setCourse(optionalCourse.get());
             }
-            Optional<StudyGroup> optionalStudyGroup = studyGroupRepository.findById(weeklyScheduleDto.getStudyGroupId());
+            Optional<StudyGroup> optionalStudyGroup = studyGroupRepository.findById(createWeeklyScheduleDto.getStudyGroupId());
             if (optionalStudyGroup.isPresent()) {
                 weeklySchedule.setSchoolClass(optionalStudyGroup.get());
             }
-            Optional<SchoolHour> optionalSchoolHour = schoolHourRepository.findById(weeklyScheduleDto.getStartHourId());
+            Optional<SchoolHour> optionalSchoolHour = schoolHourRepository.findById(createWeeklyScheduleDto.getStartHourId());
             if (optionalSchoolHour.isPresent()) {
                 weeklySchedule.setStartHour(optionalSchoolHour.get());
             }
-            if (!weeklyScheduleDto.getWeekday().toString().isEmpty()) {
-                weeklySchedule.setDay(weeklyScheduleDto.getWeekday());
+            if (!createWeeklyScheduleDto.getWeekday().toString().isEmpty()) {
+                weeklySchedule.setDay(createWeeklyScheduleDto.getWeekday());
             }
             return entityMapper.mapToWeeklyScheduleDto(weeklyScheduleRepository.save(weeklySchedule));
         } else throw new EntityNotFoundException("Weekly schedule is not found");

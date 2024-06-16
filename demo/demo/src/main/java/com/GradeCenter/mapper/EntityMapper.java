@@ -171,6 +171,8 @@ public class EntityMapper {
     public WeeklyScheduleDto mapToWeeklyScheduleDto(WeeklySchedule weeklySchedule) {
         WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
         modelMapper.map(weeklySchedule, weeklyScheduleDto);
+        weeklyScheduleDto.setStudyGroupName(weeklySchedule.getSchoolClass().getName());
+        weeklyScheduleDto.setWeekday(weeklySchedule.getDay());
         return weeklyScheduleDto;
     }
 }

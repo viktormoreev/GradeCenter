@@ -1,11 +1,12 @@
 package com.GradeCenter.service;
 
+import com.GradeCenter.dtos.CreateWeeklyScheduleDto;
 import com.GradeCenter.dtos.WeeklyScheduleDto;
 
 import java.util.List;
 
 public interface WeeklyScheduleService {
-    WeeklyScheduleDto saveWeeklySchedule(WeeklyScheduleDto weeklyScheduleDto);
+    WeeklyScheduleDto saveWeeklySchedule(CreateWeeklyScheduleDto createWeeklyScheduleDto);
 
     List<WeeklyScheduleDto> fetchAllWeeklySchedule();
 
@@ -13,7 +14,7 @@ public interface WeeklyScheduleService {
 
     List<WeeklyScheduleDto> fetchWeeklyScheduleByStudyGroupId(Long id);
 
-    WeeklyScheduleDto updateWeeklyScheduleById(Long id, WeeklyScheduleDto weeklyScheduleDto);
+    WeeklyScheduleDto updateWeeklyScheduleById(Long id, CreateWeeklyScheduleDto createWeeklyScheduleDto);
 
     void deleteWeeklyScheduleById(Long id);
 }

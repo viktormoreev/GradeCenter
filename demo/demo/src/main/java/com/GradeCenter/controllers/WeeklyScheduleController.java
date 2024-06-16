@@ -1,5 +1,6 @@
 package com.GradeCenter.controllers;
 
+import com.GradeCenter.dtos.CreateWeeklyScheduleDto;
 import com.GradeCenter.dtos.WeeklyScheduleDto;
 import com.GradeCenter.service.WeeklyScheduleService;
 import jakarta.validation.Valid;
@@ -16,8 +17,8 @@ public class WeeklyScheduleController {
     private WeeklyScheduleService weeklyScheduleService;
 
     @PostMapping
-    public ResponseEntity<WeeklyScheduleDto> addWeeklyScheduleHour(@Valid @RequestBody WeeklyScheduleDto weeklyScheduleDto) {
-        return ResponseEntity.ok(weeklyScheduleService.saveWeeklySchedule(weeklyScheduleDto));
+    public ResponseEntity<WeeklyScheduleDto> addWeeklyScheduleHour(@Valid @RequestBody CreateWeeklyScheduleDto createWeeklyScheduleDto) {
+        return ResponseEntity.ok(weeklyScheduleService.saveWeeklySchedule(createWeeklyScheduleDto));
     }
 
     @GetMapping
@@ -36,8 +37,8 @@ public class WeeklyScheduleController {
     }
 
     @PutMapping("/updateId={id}")
-    public ResponseEntity<WeeklyScheduleDto> updateWeeklyScheduleById(@PathVariable Long id, @RequestBody WeeklyScheduleDto weeklyScheduleDto) {
-        return ResponseEntity.ok(weeklyScheduleService.updateWeeklyScheduleById(id, weeklyScheduleDto));
+    public ResponseEntity<WeeklyScheduleDto> updateWeeklyScheduleById(@PathVariable Long id, @RequestBody CreateWeeklyScheduleDto createWeeklyScheduleDto) {
+        return ResponseEntity.ok(weeklyScheduleService.updateWeeklyScheduleById(id, createWeeklyScheduleDto));
     }
 
     @DeleteMapping("/deleteId={id}")
