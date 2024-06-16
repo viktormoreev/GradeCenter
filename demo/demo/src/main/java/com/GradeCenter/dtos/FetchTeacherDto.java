@@ -13,7 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FetchTeacherDto {
-    private String userID;
+    private Long id;
+    private String name;
     private List<CourseDto> courses;
     private String schoolName;
     private List<QualificationDto> qualifications;

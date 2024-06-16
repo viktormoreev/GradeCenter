@@ -38,7 +38,8 @@ public class EntityMapper {
 
     public DirectorDto mapToDirectorDto(Director director){
         DirectorDto directorDto = new DirectorDto();
-        directorDto.setUserID(director.getUserID());
+        directorDto.setId(director.getId());
+        directorDto.setName(keycloakAdminClientService.getUserFromUserID(director.getUserID()).getUsername());
         if (director.getSchool() != null){
             directorDto.setSchoolName(director.getSchool().getName());
         }
@@ -239,7 +240,8 @@ public class EntityMapper {
         FetchTeacherDto fetchTeacherDto = new FetchTeacherDto();
         fetchTeacherDto.setCourses(mapToCourseListDto(teacher.getCourses()));
         fetchTeacherDto.setQualifications(mapToQualificationListDto(teacher.getQualifications()));
-        fetchTeacherDto.setUserID(teacher.getUserID());
+        fetchTeacherDto.setId(teacher.getId());
+        fetchTeacherDto.setName(keycloakAdminClientService.getUserFromUserID(teacher.getUserID()).getUsername());
         fetchTeacherDto.setSchoolName(teacher.getSchool().getName());
         return fetchTeacherDto;
     }
