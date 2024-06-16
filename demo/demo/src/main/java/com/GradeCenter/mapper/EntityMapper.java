@@ -2,7 +2,9 @@ package com.GradeCenter.mapper;
 
 import com.GradeCenter.dtos.*;
 import com.GradeCenter.entity.*;
+import com.GradeCenter.service.implementation.KeycloakAdminClientService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,7 +13,8 @@ import java.util.stream.Collectors;
 @Service
 public class EntityMapper {
     private final ModelMapper modelMapper = new ModelMapper();
-
+    @Autowired
+    private KeycloakAdminClientService keycloakAdminClientService;
     public CourseDto mapToCourseDto(Course course){
         CourseDto courseDto = new CourseDto();
         modelMapper.map(course, courseDto);
@@ -63,12 +66,25 @@ public class EntityMapper {
 
     public ParentDto mapToParentDto(Parent parent){
         ParentDto parentDto = new ParentDto();
-        parentDto.setUserID(parent.getUserID());
+        parentDto.setParentId(parent.getId());
+        parentDto.setName(keycloakAdminClientService.getUserFromUserID(parent.getUserID()).getUsername());
         if (parent.getStudents() != null){
-            parentDto.setStudents(mapToStudentListDto(parent.getStudents()));
+            parentDto.setStudents(mapToFetchStudentListDto(parent.getStudents()));
         }
 
         return parentDto;
+    }
+
+    private List<FetchStudentDto> mapToFetchStudentListDto(List<Student> students) {
+        return students.stream().map(this::mapToFetchstudentDto).collect(Collectors.toList());
+    }
+
+    private FetchStudentDto mapToFetchstudentDto(Student student) {
+        FetchStudentDto fetchStudentDto = new FetchStudentDto();
+        fetchStudentDto.setStudyGroupName(student.getClasses().getName());
+        fetchStudentDto.setStudentId(student.getId());
+        fetchStudentDto.setName(keycloakAdminClientService.getUserFromUserID(student.getUserID()).getUsername());
+        return fetchStudentDto;
     }
 
     public SchoolDto mapToSchoolDto(School school){
@@ -242,19 +258,6 @@ public class EntityMapper {
         return Qualification.builder()
                 .area(qualificationDto.getArea())
                 .build();
-    }
-
-    public QualificationDto mapToQualificationDto(Qualification qualification) {
-        return new QualificationDto(
-                qualification.getId(),
-                qualification.getArea()
-        );
-    }
-
-    public List<QualificationDto> mapToQualificationListDto(List<Qualification> qualifications) {
-        return qualifications.stream()
-                .map(this::mapToQualificationDto)
-                .collect(Collectors.toList());
     }
 
 

@@ -12,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ParentDto {
-
-    String userID;
-    List<StudentDto> students;
+    private String name;
+    private Long parentId;
+    private List<FetchStudentDto> students;
 
 }

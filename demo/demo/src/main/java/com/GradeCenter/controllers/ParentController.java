@@ -1,9 +1,11 @@
 package com.GradeCenter.controllers;
 
+import com.GradeCenter.dtos.KeycloakUser;
 import com.GradeCenter.dtos.ParentDto;
 import com.GradeCenter.dtos.ParentUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.ParentService;
+import com.GradeCenter.service.implementation.KeycloakAdminClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,7 +33,6 @@ public class ParentController {
     public ResponseEntity<ParentDto> getPersonalParent() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
-
         ParentDto parent = parentService.getParentByUId(userId);
         if (parent == null) {
             return ResponseEntity.notFound().build();

@@ -7,15 +7,12 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
-public class SchoolDto {
-
-    private Long id;
+@NoArgsConstructor
+public class FetchStudentDto {
+    private Long studentId;
     private String name;
-    private String address;
-    private Long directorId;
-    private List<Long> teachersId;
+    private String studyGroupName;
 }
