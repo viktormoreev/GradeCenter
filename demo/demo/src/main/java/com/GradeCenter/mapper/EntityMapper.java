@@ -153,6 +153,10 @@ public class EntityMapper {
         return studentCourseDto;
     }
 
+    public List<WeeklyScheduleDto> mapToWeeklyScheduleListDto(List<WeeklySchedule> weeklyScheduleDtos) {
+        return weeklyScheduleDtos.stream().map(weeklyScheduleDto -> mapToWeeklyScheduleDto(weeklyScheduleDto)).collect(Collectors.toList());
+    }
+
     public List<CourseTypeDto> mapToCourseTypeListDto(List<CourseType> courseTypes) {
         return courseTypes.stream().map(this::mapToCourseTypeDto).collect(Collectors.toList());
     }
@@ -161,5 +165,12 @@ public class EntityMapper {
         CourseTypeDto courseTypeDto = new CourseTypeDto();
         modelMapper.map(courseType, courseTypeDto);
         return courseTypeDto;
+    }
+
+
+    public WeeklyScheduleDto mapToWeeklyScheduleDto(WeeklySchedule weeklySchedule) {
+        WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+        modelMapper.map(weeklySchedule, weeklyScheduleDto);
+        return weeklyScheduleDto;
     }
 }

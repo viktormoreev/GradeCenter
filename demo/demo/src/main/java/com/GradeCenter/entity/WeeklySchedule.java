@@ -19,7 +19,7 @@ public class WeeklySchedule extends IdGenerator{
     @ManyToOne(fetch = FetchType.LAZY)
     private Course course;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private Weekday day;
 
     @ManyToOne(fetch = FetchType.LAZY)
