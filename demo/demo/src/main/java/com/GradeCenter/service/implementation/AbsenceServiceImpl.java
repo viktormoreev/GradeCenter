@@ -14,6 +14,7 @@ import com.GradeCenter.repository.AbsenceRepository;
 import com.GradeCenter.repository.CourseRepository;
 import com.GradeCenter.repository.StudentRepository;
 import com.GradeCenter.service.AbsenceService;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,9 @@ public class AbsenceServiceImpl implements AbsenceService {
 
     @Autowired
     CourseRepository courseRepository;
+
+    @Autowired
+    private KeycloakAdminClientService keycloakAdminClientService;
 
     @Override
     public List<AbsenceDto> getAllAbsences() {
@@ -132,9 +136,11 @@ public class AbsenceServiceImpl implements AbsenceService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(absence -> {
-                    String studentUserId = absence.getStudent().getUserID();
-                    String courseName = absence.getCourse().getName();
-                    return new AbsenceTeacherViewDto(studentUserId, courseName, absence.getDate());
+                    final String studentUserId = absence.getStudent().getUserID();
+                    final UserRepresentation userRepresentation = keycloakAdminClientService.getUserFromUserID(studentUserId);
+                    final String studentName = userRepresentation.getUsername();
+                    final String courseName = absence.getCourse().getName();
+                    return new AbsenceTeacherViewDto(studentName, courseName, absence.getDate());
                 })
                 .collect(Collectors.toList());
     }

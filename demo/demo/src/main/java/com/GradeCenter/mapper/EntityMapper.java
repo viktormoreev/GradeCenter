@@ -136,4 +136,20 @@ public class EntityMapper {
                 .date(absenceDto.getDate())
                 .build();
     }
+
+    public GradeDto mapToGradeDto(Grade grade) {
+        return new GradeDto(
+                grade.getGrade(),
+                grade.getStudent().getId(),
+                grade.getCourse().getId()
+        );
+    }
+
+    public Grade mapToGradeEntity(GradeDto gradeDto, Student student, Course course) {
+        return Grade.builder()
+                .student(student)
+                .course(course)
+                .grade(gradeDto.getGrade())
+                .build();
+    }
 }

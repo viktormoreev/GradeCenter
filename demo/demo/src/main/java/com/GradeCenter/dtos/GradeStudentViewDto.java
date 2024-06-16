@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GradeDto {
+public class GradeStudentViewDto {
+    private String courseName;
     private Double grade;
-    private Long studentId;
-    private Long courseId;
 }
