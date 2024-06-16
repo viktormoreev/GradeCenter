@@ -2,6 +2,7 @@ package com.GradeCenter.service.implementation;
 
 import com.GradeCenter.dtos.DirectorDto;
 import com.GradeCenter.dtos.DirectorUpdateDto;
+import com.GradeCenter.dtos.SchoolDto;
 import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.entity.Director;
 import com.GradeCenter.entity.School;
@@ -9,6 +10,7 @@ import com.GradeCenter.mapper.EntityMapper;
 import com.GradeCenter.repository.DirectorRepository;
 import com.GradeCenter.repository.SchoolRepository;
 import com.GradeCenter.service.DirectorService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +82,22 @@ public class DirectorServiceImpl implements DirectorService {
             return entityMapper.mapToDirectorDto(existingDirector);
         }
         return null;
+    }
+
+    @Override
+    public SchoolDto addDirectorToSchool(Long directorId, Long schoolId) {
+        Optional<Director> optionalDirector = directorRepository.findById(directorId);
+        if(optionalDirector.isPresent()){
+            Optional<School> optionalSchool = schoolRepository.findById(schoolId);
+            if(optionalSchool.isPresent()){
+                School school = optionalSchool.get();
+                school.setDirector(optionalDirector.get());
+                schoolRepository.save(school);
+                return entityMapper.mapToSchoolDto(schoolRepository.save(school));
+            }
+            else throw new EntityNotFoundException("School is not found exception");
+        }
+        else throw new EntityNotFoundException("Director is not found exception");
     }
 
     @Override

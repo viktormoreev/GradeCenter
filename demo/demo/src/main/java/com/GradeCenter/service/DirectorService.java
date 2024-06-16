@@ -2,6 +2,7 @@ package com.GradeCenter.service;
 
 import com.GradeCenter.dtos.DirectorDto;
 import com.GradeCenter.dtos.DirectorUpdateDto;
+import com.GradeCenter.dtos.SchoolDto;
 import com.GradeCenter.dtos.UserIDRequest;
 
 import java.util.List;
@@ -22,4 +23,6 @@ public interface DirectorService {
     DirectorDto updateDirectorID(Long id, DirectorUpdateDto directorUpdateDto);
 
     DirectorDto updateDirectorUID(String userID, DirectorUpdateDto directorUpdateDto);
+
+    SchoolDto addDirectorToSchool(Long directorId, Long schoolId);
 }

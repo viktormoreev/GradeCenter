@@ -2,6 +2,7 @@ package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.DirectorDto;
 import com.GradeCenter.dtos.DirectorUpdateDto;
+import com.GradeCenter.dtos.SchoolDto;
 import com.GradeCenter.dtos.UserIDRequest;
 import com.GradeCenter.service.DirectorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,13 @@ public class DirectorController {
     public ResponseEntity<DirectorDto> addDirector(@RequestBody UserIDRequest userIDRequest) {
         DirectorDto director = directorService.addDirector(userIDRequest);
         return ResponseEntity.ok(director);
+    }
+
+    @PostMapping("/directorId={directorId}/schoolId={schoolId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<SchoolDto> addDirectorToSchool(@PathVariable("directorId") Long directorId, @PathVariable("schoolId") Long schoolId) {
+        SchoolDto schoolDto = directorService.addDirectorToSchool(directorId,schoolId);
+        return ResponseEntity.ok(schoolDto);
     }
 
     @DeleteMapping("/id={id}")
