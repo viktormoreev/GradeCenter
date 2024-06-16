@@ -37,7 +37,7 @@ public class EntityMapper {
         DirectorDto directorDto = new DirectorDto();
         directorDto.setUserID(director.getUserID());
         if (director.getSchool() != null){
-            directorDto.setSchoolID(director.getSchool().getId());
+            directorDto.setSchoolName(director.getSchool().getName());
         }
         return directorDto;
     }
@@ -65,7 +65,7 @@ public class EntityMapper {
         ParentDto parentDto = new ParentDto();
         parentDto.setUserID(parent.getUserID());
         if (parent.getStudents() != null){
-            parentDto.setStudentsID(parent.getStudents().stream().map(student -> student.getId()).collect(Collectors.toList()));
+            parentDto.setStudents(mapToStudentListDto(parent.getStudents()));
         }
 
         return parentDto;
@@ -213,5 +213,28 @@ public class EntityMapper {
         weeklyScheduleDto.setStudyGroupName(weeklySchedule.getSchoolClass().getName());
         weeklyScheduleDto.setWeekday(weeklySchedule.getDay());
         return weeklyScheduleDto;
+    }
+
+    public List<FetchTeacherDto> mapToFetchTeacherListDto(List<Teacher> teachers) {
+        return teachers.stream().map(this::mapToFetchTeacherDto).collect(Collectors.toList());
+    }
+
+    public FetchTeacherDto mapToFetchTeacherDto(Teacher teacher) {
+        FetchTeacherDto fetchTeacherDto = new FetchTeacherDto();
+        fetchTeacherDto.setCourses(mapToCourseListDto(teacher.getCourses()));
+        fetchTeacherDto.setQualifications(mapToQualificationListDto(teacher.getQualifications()));
+        fetchTeacherDto.setUserID(teacher.getUserID());
+        fetchTeacherDto.setSchoolName(teacher.getSchool().getName());
+        return fetchTeacherDto;
+    }
+
+    public List<QualificationDto> mapToQualificationListDto(List<Qualification> qualifications) {
+        return qualifications.stream().map(this::mapToQualificationDto).collect(Collectors.toList());
+    }
+
+    public QualificationDto mapToQualificationDto(Qualification qualification) {
+        QualificationDto qualificationDto = new QualificationDto();
+        modelMapper.map(qualification, qualificationDto);
+        return qualificationDto;
     }
 }

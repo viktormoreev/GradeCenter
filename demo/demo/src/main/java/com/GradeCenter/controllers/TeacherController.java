@@ -1,5 +1,6 @@
 package com.GradeCenter.controllers;
 
+import com.GradeCenter.dtos.FetchTeacherDto;
 import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.dtos.TeacherUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
@@ -22,17 +23,17 @@ public class TeacherController {
 
     @GetMapping
     //@PreAuthorize("hasRole('admin')")
-    public List<TeacherDto> getAllTeachers() {
+    public List<FetchTeacherDto> getAllTeachers() {
         return teacherService.getAllTeachers();
     }
 
     @GetMapping("/me")
     //@PreAuthorize("hasRole('teacher')")
-    public ResponseEntity<TeacherDto> getPersonalTeacher() {
+    public ResponseEntity<FetchTeacherDto> getPersonalTeacher() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
 
-        TeacherDto teacher = teacherService.getTeacherByUId(userId);
+        FetchTeacherDto teacher = teacherService.getTeacherByUId(userId);
         if (teacher == null) {
             return ResponseEntity.notFound().build();
         }
@@ -41,8 +42,8 @@ public class TeacherController {
 
     @GetMapping("/id={id}")
     //@PreAuthorize("hasRole('admin')")
-    public ResponseEntity<TeacherDto> getTeacherById(@PathVariable("id") Long id) {
-        TeacherDto teacher = teacherService.getTeacherById(id);
+    public ResponseEntity<FetchTeacherDto> getTeacherById(@PathVariable("id") Long id) {
+        FetchTeacherDto teacher = teacherService.getTeacherById(id);
         if (teacher == null) {
             return ResponseEntity.notFound().build();
         }
@@ -51,8 +52,8 @@ public class TeacherController {
 
     @GetMapping("/uid={id}")
     //@PreAuthorize("hasRole('admin')")
-    public ResponseEntity<TeacherDto> getTeacherByUId(@PathVariable("id") String userID) {
-        TeacherDto teacher = teacherService.getTeacherByUId(userID);
+    public ResponseEntity<FetchTeacherDto> getTeacherByUId(@PathVariable("id") String userID) {
+        FetchTeacherDto teacher = teacherService.getTeacherByUId(userID);
         if (teacher == null) {
             return ResponseEntity.notFound().build();
         }

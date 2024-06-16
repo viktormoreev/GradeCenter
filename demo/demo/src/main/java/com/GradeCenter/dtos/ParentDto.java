@@ -14,6 +14,6 @@ import java.util.List;
 public class ParentDto {
 
     String userID;
-    List<Long> studentsID;
+    List<StudentDto> students;
 
 }

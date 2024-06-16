@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeacherDto {
-
     private String userID;
     private List<Long> courseIds;
     private Long schoolId;

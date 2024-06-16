@@ -1,5 +1,6 @@
 package com.GradeCenter.service;
 
+import com.GradeCenter.dtos.FetchTeacherDto;
 import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.dtos.TeacherUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
@@ -7,13 +8,13 @@ import com.GradeCenter.dtos.UserIDRequest;
 import java.util.List;
 
 public interface TeacherService {
-    List<TeacherDto> getAllTeachers();
+    List<FetchTeacherDto> getAllTeachers();
 
     TeacherDto addTeacher(UserIDRequest userIDRequest);
 
-    TeacherDto getTeacherById(Long id);
+    FetchTeacherDto getTeacherById(Long id);
 
-    TeacherDto getTeacherByUId(String uid);
+    FetchTeacherDto getTeacherByUId(String uid);
 
     boolean deleteTeacherUID(String userID);
 

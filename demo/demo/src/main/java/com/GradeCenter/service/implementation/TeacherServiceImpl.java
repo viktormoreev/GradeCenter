@@ -1,5 +1,6 @@
 package com.GradeCenter.service.implementation;
 
+import com.GradeCenter.dtos.FetchTeacherDto;
 import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.dtos.TeacherUpdateDto;
 import com.GradeCenter.dtos.UserIDRequest;
@@ -39,14 +40,14 @@ public class TeacherServiceImpl implements TeacherService {
     private EntityMapper entityMapper;
 
     @Override
-    public List<TeacherDto> getAllTeachers() {
-        return entityMapper.mapToTeacherListDto(teacherRepository.findAll());
+    public List<FetchTeacherDto> getAllTeachers() {
+        return entityMapper.mapToFetchTeacherListDto(teacherRepository.findAll());
     }
 
     @Override
-    public TeacherDto getTeacherByUId(String uid) {
+    public FetchTeacherDto getTeacherByUId(String uid) {
         return teacherRepository.findByUserID(uid)
-                .map(entityMapper::mapToTeacherDto)
+                .map(entityMapper::mapToFetchTeacherDto)
                 .orElse(null);
     }
 
@@ -105,9 +106,9 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public TeacherDto getTeacherById(Long id) {
+    public FetchTeacherDto getTeacherById(Long id) {
         return teacherRepository.findById(id)
-                .map(entityMapper::mapToTeacherDto)
+                .map(entityMapper::mapToFetchTeacherDto)
                 .orElse(null);
     }
 

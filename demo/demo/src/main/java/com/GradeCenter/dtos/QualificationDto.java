@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DirectorDto {
-    private String userID;
-    private String schoolName;
+public class QualificationDto {
+    private String area;
 }
