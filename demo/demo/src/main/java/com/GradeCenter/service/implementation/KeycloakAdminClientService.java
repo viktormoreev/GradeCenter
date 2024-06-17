@@ -142,10 +142,6 @@ public class KeycloakAdminClientService {
     }
 
 
-
-
-
-
     public ApiResponse<String> deleteUser(String userId) {
         try {
             keycloak.realm(keycloakRealm).users().delete(userId);
@@ -234,8 +230,6 @@ public class KeycloakAdminClientService {
             return new ApiResponse<>(false, "Failed to get users and roles", null);
         }
     }
-
-
 
 
     public List<UserRepresentation> getUsersFromIDs(List<String> userIds) {

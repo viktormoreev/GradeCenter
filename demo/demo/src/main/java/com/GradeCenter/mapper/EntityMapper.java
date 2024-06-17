@@ -90,6 +90,7 @@ public class EntityMapper {
 
     public SchoolDto mapToSchoolDto(School school){
         SchoolDto schoolDto = new SchoolDto();
+        schoolDto.setId(school.getId());
         schoolDto.setName(school.getName());
         schoolDto.setAddress(school.getAddress());
         if (school.getDirector() != null){
