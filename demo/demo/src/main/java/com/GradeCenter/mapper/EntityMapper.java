@@ -62,8 +62,6 @@ public class EntityMapper {
         if (teacher.getQualifications() != null){
             teacherDto.setQualificationsIds(teacher.getQualifications().stream().map(qualification -> qualification.getId()).collect(Collectors.toList()));
         }
-
-
         return teacherDto;
     }
 
@@ -142,16 +140,29 @@ public class EntityMapper {
         return schoolDto;
     }
 
-    public SchoolNamesDto mapToSchoolNamessDto(School school){
+    public SchoolNamesDto mapToSchoolNamesDto(School school){
         SchoolNamesDto schoolDto = new SchoolNamesDto();
         schoolDto.setId(school.getId());
         schoolDto.setName(school.getName());
         schoolDto.setAddress(school.getAddress());
+
         if (school.getDirector() != null){
-            schoolDto.setDirectorName(keycloakAdminClientService.getUserFromUserID(school.getDirector().getUserID()).getUsername());
+            UserRepresentation director = keycloakAdminClientService.getUserFromUserID(school.getDirector().getUserID());
+            if (director != null) {
+                schoolDto.setDirectorName(director.getUsername());
+            } else {
+                schoolDto.setDirectorName("Director not found");
+            }
         }
+
         if (school.getTeachers() != null){
-            schoolDto.setTeachersNames(school.getTeachers().stream().map(teacher -> keycloakAdminClientService.getUserFromUserID(teacher.getUserID()).getUsername()).collect(Collectors.toList()));
+            List<String> teacherNames = school.getTeachers().stream()
+                    .map(teacher -> {
+                        UserRepresentation user = keycloakAdminClientService.getUserFromUserID(teacher.getUserID());
+                        return user != null ? user.getUsername() : "Teacher not found";
+                    })
+                    .collect(Collectors.toList());
+            schoolDto.setTeachersNames(teacherNames);
         }
 
         return schoolDto;
@@ -318,7 +329,7 @@ public class EntityMapper {
     }
 
     public List<SchoolNamesDto> mapToSchoolNamesDtoList(List<School> schools) {
-        return schools.stream().map(this::mapToSchoolNamessDto).collect(Collectors.toList());
+        return schools.stream().map(this::mapToSchoolNamesDto).collect(Collectors.toList());
     }
 
 

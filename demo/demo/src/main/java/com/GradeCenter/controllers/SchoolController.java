@@ -22,9 +22,16 @@ public class SchoolController {
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
-    public List<SchoolNamesDto> getAllSchools() {
+    public List<SchoolDto> getAllSchools() {
         return schoolService.getAllSchools();
     }
+
+    @GetMapping("/names")
+    @PreAuthorize("hasRole('admin')")
+    public List<SchoolNamesDto> getAllSchoolsNames() {
+        return schoolService.getAllSchoolsNames();
+    }
+
 
     @GetMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")

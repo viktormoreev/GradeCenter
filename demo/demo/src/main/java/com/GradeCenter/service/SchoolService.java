@@ -8,7 +8,7 @@ import com.GradeCenter.dtos.TeacherDto;
 import java.util.List;
 
 public interface SchoolService {
-    List<SchoolNamesDto> getAllSchools();
+    List<SchoolDto> getAllSchools();
 
     SchoolDto addSchool(SchoolCreateRequest schoolCreateRequest);
 
@@ -19,4 +19,6 @@ public interface SchoolService {
     SchoolDto updateSchool(Long id, SchoolDto schoolDto);
 
     List<TeacherDto> getTeachersBySchoolId(Long schoolId);
+
+    List<SchoolNamesDto> getAllSchoolsNames();
 }

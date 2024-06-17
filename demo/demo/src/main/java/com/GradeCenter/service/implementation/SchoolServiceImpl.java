@@ -40,7 +40,12 @@ public class SchoolServiceImpl implements SchoolService {
     private EntityMapper entityMapper;
 
     @Override
-    public List<SchoolNamesDto> getAllSchools() {
+    public List<SchoolDto> getAllSchools() {
+        return entityMapper.mapToSchoolListDto(schoolRepository.findAll());
+    }
+
+    @Override
+    public List<SchoolNamesDto> getAllSchoolsNames() {
         return entityMapper.mapToSchoolNamesDtoList(schoolRepository.findAll());
     }
 

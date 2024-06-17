@@ -110,7 +110,12 @@ public class KeycloakAdminClientService {
 
     // Fetch a user with userid from the keycloak server
     public UserRepresentation getUserFromUserID(String userId) {
-        return keycloak.realm(keycloakRealm).users().get(userId).toRepresentation();
+        try {
+            return keycloak.realm(keycloakRealm).users().get(userId).toRepresentation();
+        } catch (Exception e) {
+            logger.error("Error fetching user with ID {}: {}", userId, e.getMessage(), e);
+            return null;
+        }
     }
 
 
