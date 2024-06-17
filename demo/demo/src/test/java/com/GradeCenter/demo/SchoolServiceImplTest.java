@@ -2,6 +2,7 @@ package com.GradeCenter.demo;
 
 import com.GradeCenter.dtos.SchoolCreateRequest;
 import com.GradeCenter.dtos.SchoolDto;
+import com.GradeCenter.dtos.SchoolNamesDto;
 import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.entity.Director;
 import com.GradeCenter.entity.School;
@@ -47,6 +48,8 @@ class SchoolServiceImplTest {
     private School school2;
     private SchoolDto schoolDto1;
     private SchoolDto schoolDto2;
+    private SchoolNamesDto schoolNamesDto1;
+    private SchoolNamesDto schoolNamesDto2;
     private Teacher teacher1;
     private Teacher teacher2;
     private TeacherDto teacherDto1;
@@ -77,6 +80,21 @@ class SchoolServiceImplTest {
         teacherDto2 = new TeacherDto();
         teacherDto2.setUserID("teacher2");
 
+        schoolNamesDto1 = new SchoolNamesDto();
+        schoolNamesDto1.setId(1L);
+        schoolNamesDto1.setName("School 1");
+        schoolNamesDto1.setAddress("Address 1");
+        schoolNamesDto1.setDirectorName("director1");
+        schoolNamesDto1.setTeachersNames(Arrays.asList("teacher1", "teacher2"));
+
+        schoolNamesDto2 = new SchoolNamesDto();
+        schoolNamesDto2.setId(2L);
+        schoolNamesDto2.setName("School 2");
+        schoolNamesDto2.setAddress("Address 2");
+        schoolNamesDto2.setDirectorName("director2");
+        schoolNamesDto2.setTeachersNames(Arrays.asList("teacher3", "teacher4"));
+
+
 
         director = Director.builder().userID("1").build();
     }
@@ -91,6 +109,18 @@ class SchoolServiceImplTest {
         assertEquals(2, result.size());
         verify(schoolRepository, times(1)).findAll();
         verify(entityMapper, times(1)).mapToSchoolListDto(Arrays.asList(school1, school2));
+    }
+
+    @Test
+    void testGetAllSchoolsNames() {
+        when(schoolRepository.findAll()).thenReturn(Arrays.asList(school1, school2));
+        when(entityMapper.mapToSchoolNamesDtoList(Arrays.asList(school1, school2))).thenReturn(Arrays.asList(schoolNamesDto1, schoolNamesDto2));
+
+        List<SchoolNamesDto> result = schoolService.getAllSchoolsNames();
+
+        assertEquals(2, result.size());
+        verify(schoolRepository, times(1)).findAll();
+        verify(entityMapper, times(1)).mapToSchoolNamesDtoList(Arrays.asList(school1, school2));
     }
 
     @Test

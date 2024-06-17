@@ -44,6 +44,7 @@ public class EntityMapper {
         directorDto.setName(keycloakAdminClientService.getUserFromUserID(director.getUserID()).getUsername());
         if (director.getSchool() != null){
             directorDto.setSchoolName(director.getSchool().getName());
+            directorDto.setSchoolId(director.getSchool().getId());
         }
         return directorDto;
     }

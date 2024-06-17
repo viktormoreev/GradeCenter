@@ -13,4 +13,5 @@ public class DirectorDto {
     private Long id;
     private String name;
     private String schoolName;
+    private Long schoolId;
 }
