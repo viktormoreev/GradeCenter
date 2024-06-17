@@ -2,13 +2,16 @@ package com.GradeCenter.service.implementation;
 
 import com.GradeCenter.dtos.SchoolCreateRequest;
 import com.GradeCenter.dtos.SchoolDto;
+import com.GradeCenter.dtos.SchoolNamesDto;
 import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.entity.Director;
 import com.GradeCenter.entity.School;
+import com.GradeCenter.entity.StudyGroup;
 import com.GradeCenter.entity.Teacher;
 import com.GradeCenter.mapper.EntityMapper;
 import com.GradeCenter.repository.DirectorRepository;
 import com.GradeCenter.repository.SchoolRepository;
+import com.GradeCenter.repository.StudyGroupRepository;
 import com.GradeCenter.repository.TeacherRepository;
 import com.GradeCenter.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +34,14 @@ public class SchoolServiceImpl implements SchoolService {
     private TeacherRepository teacherRepository;
 
     @Autowired
+    private StudyGroupRepository studyGroupRepository;
+
+    @Autowired
     private EntityMapper entityMapper;
 
     @Override
-    public List<SchoolDto> getAllSchools() {
-        return entityMapper.mapToSchoolListDto(schoolRepository.findAll());
+    public List<SchoolNamesDto> getAllSchools() {
+        return entityMapper.mapToSchoolNamesDtoList(schoolRepository.findAll());
     }
 
     @Override
@@ -59,11 +65,25 @@ public class SchoolServiceImpl implements SchoolService {
 
     @Override
     public boolean deleteSchool(Long id) {
-        if (schoolRepository.existsById(id)) {
-            schoolRepository.deleteById(id);
-            return true;
+        Optional<School> schoolOpt = schoolRepository.findById(id);
+        if (schoolOpt.isEmpty()) {
+            return false;
         }
-        return false;
+        School school = schoolOpt.get();
+        List<Teacher> teachers = school.getTeachers();
+        for (Teacher teacher : teachers) {
+            teacher.setSchool(null);
+            teacherRepository.save(teacher);
+        }
+
+        List<StudyGroup> studyGroups = school.getStudyGroups();
+        for (StudyGroup studyGroup : studyGroups) {
+            studyGroup.setSchool(null);
+            studyGroupRepository.save(studyGroup);
+        }
+        schoolRepository.deleteById(id);
+
+        return true;
     }
 
     @Override

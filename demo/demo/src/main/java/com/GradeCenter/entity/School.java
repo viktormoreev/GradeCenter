@@ -23,10 +23,10 @@ public class School extends IdGenerator{
     @OneToOne(fetch = FetchType.LAZY)
     private Director director;
 
-    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "school")
     private List<Teacher> teachers;
 
-    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "school")
     private List<StudyGroup> studyGroups;
 
 }

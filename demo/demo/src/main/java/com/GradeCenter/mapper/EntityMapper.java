@@ -3,9 +3,11 @@ package com.GradeCenter.mapper;
 import com.GradeCenter.dtos.*;
 import com.GradeCenter.entity.*;
 import com.GradeCenter.service.implementation.KeycloakAdminClientService;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Map;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +67,8 @@ public class EntityMapper {
         return teacherDto;
     }
 
+
+
     public ParentDto mapToParentDto(Parent parent){
         ParentDto parentDto = new ParentDto();
         parentDto.setParentId(parent.getId());
@@ -78,6 +82,41 @@ public class EntityMapper {
 
     private List<FetchStudentDto> mapToFetchStudentListDto(List<Student> students) {
         return students.stream().map(this::mapToFetchstudentDto).collect(Collectors.toList());
+    }
+
+    public StudentFullReturnDto mapToStudentFullReturnDto(Student student, Map<String, UserRepresentation> keycloakUserMap, List<StudentCourseDto> courses) {
+        StudentFullReturnDto studentFullDto = new StudentFullReturnDto();
+        studentFullDto.setId(student.getId());
+
+        // Fetch username from Keycloak user representation
+        UserRepresentation keycloakUser = keycloakUserMap.get(student.getUserID());
+        if (keycloakUser != null) {
+            studentFullDto.setUsername(keycloakUser.getUsername());
+        }
+
+        studentFullDto.setCourses(courses);
+        studentFullDto.setGrade(student.getClasses().getName());
+        studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
+        studentFullDto.setAbsences(courses.stream().mapToInt(course -> course.getAbsences().size()).sum());
+
+        List<String> parentIDs = student.getParents().stream()
+                .map(Parent::getUserID)
+                .collect(Collectors.toList());
+
+        List<UserRepresentation> parentUsers = keycloakAdminClientService.getUsersFromIDs(parentIDs);
+        List<String> parentNames = parentUsers.stream()
+                .map(UserRepresentation::getUsername)
+                .collect(Collectors.toList());
+
+        studentFullDto.setParent(parentNames);
+
+        return studentFullDto;
+    }
+
+    public List<StudentFullReturnDto> mapToStudentFullReturnDtoList(List<Student> students, Map<String, UserRepresentation> keycloakUserMap, Map<Long, List<StudentCourseDto>> studentCoursesMap) {
+        return students.stream()
+                .map(student -> mapToStudentFullReturnDto(student, keycloakUserMap, studentCoursesMap.get(student.getId())))
+                .collect(Collectors.toList());
     }
 
     private FetchStudentDto mapToFetchstudentDto(Student student) {
@@ -98,6 +137,21 @@ public class EntityMapper {
         }
         if (school.getTeachers() != null){
             schoolDto.setTeachersId(school.getTeachers().stream().map(teacher -> teacher.getId()).collect(Collectors.toList()));
+        }
+
+        return schoolDto;
+    }
+
+    public SchoolNamesDto mapToSchoolNamessDto(School school){
+        SchoolNamesDto schoolDto = new SchoolNamesDto();
+        schoolDto.setId(school.getId());
+        schoolDto.setName(school.getName());
+        schoolDto.setAddress(school.getAddress());
+        if (school.getDirector() != null){
+            schoolDto.setDirectorName(keycloakAdminClientService.getUserFromUserID(school.getDirector().getUserID()).getUsername());
+        }
+        if (school.getTeachers() != null){
+            schoolDto.setTeachersNames(school.getTeachers().stream().map(teacher -> keycloakAdminClientService.getUserFromUserID(teacher.getUserID()).getUsername()).collect(Collectors.toList()));
         }
 
         return schoolDto;
@@ -262,6 +316,12 @@ public class EntityMapper {
                 .area(qualificationDto.getArea())
                 .build();
     }
+
+    public List<SchoolNamesDto> mapToSchoolNamesDtoList(List<School> schools) {
+        return schools.stream().map(this::mapToSchoolNamessDto).collect(Collectors.toList());
+    }
+
+
 
 
 

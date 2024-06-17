@@ -2,6 +2,7 @@ package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.SchoolCreateRequest;
 import com.GradeCenter.dtos.SchoolDto;
+import com.GradeCenter.dtos.SchoolNamesDto;
 import com.GradeCenter.dtos.TeacherDto;
 import com.GradeCenter.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class SchoolController {
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
-    public List<SchoolDto> getAllSchools() {
+    public List<SchoolNamesDto> getAllSchools() {
         return schoolService.getAllSchools();
     }
 
