@@ -2,10 +2,12 @@ package com.GradeCenter.service.implementation;
 
 import com.GradeCenter.dtos.*;
 import com.GradeCenter.entity.Parent;
+import com.GradeCenter.entity.School;
 import com.GradeCenter.entity.Student;
 import com.GradeCenter.entity.StudyGroup;
 import com.GradeCenter.mapper.EntityMapper;
 import com.GradeCenter.repository.ParentRepository;
+import com.GradeCenter.repository.SchoolRepository;
 import com.GradeCenter.repository.StudentRepository;
 import com.GradeCenter.repository.StudyGroupRepository;
 import com.GradeCenter.service.CourseService;
@@ -53,6 +55,23 @@ public class StudentServiceImpl implements StudentService {
         return studentRepository.findByUserID(uid)
                 .map(entityMapper::mapToStudentDto)
                 .orElse(null);
+    }
+
+    @Override
+    public List<StudentFullReturnDto> getAllStudentsFullSchool(Long id) {
+        List<Student> students = studentRepository.findAllBySchool(id);
+
+        List<String> userIds = students.stream()
+                .map(Student::getUserID)
+                .collect(Collectors.toList());
+
+        Map<String, UserRepresentation> keycloakUserMap = keycloakAdminClientService.getUsersFromIDs(userIds).stream()
+                .collect(Collectors.toMap(UserRepresentation::getId, user -> user));
+
+        Map<Long, List<StudentCourseDto>> studentCoursesMap = students.stream()
+                .collect(Collectors.toMap(Student::getId, student -> courseService.fetchCourseByStudentId(student.getId())));
+
+        return entityMapper.mapToStudentFullReturnDtoList(students, keycloakUserMap, studentCoursesMap);
     }
 
     @Override

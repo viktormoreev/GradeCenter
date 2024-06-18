@@ -25,4 +25,6 @@ public interface DirectorService {
     DirectorDto updateDirectorUID(String userID, DirectorUpdateDto directorUpdateDto);
 
     SchoolDto addDirectorToSchool(Long directorId, Long schoolId);
+
+    SchoolDto removeDirectorFromSchool(Long schoolId);
 }

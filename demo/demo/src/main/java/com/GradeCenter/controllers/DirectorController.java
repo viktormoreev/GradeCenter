@@ -74,6 +74,15 @@ public class DirectorController {
         return ResponseEntity.ok(schoolDto);
     }
 
+    // Fire a director from a school
+    @PatchMapping("/schoolId={schoolId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<SchoolDto> fireDirectorFromSchool(@PathVariable("schoolId") Long schoolId) {
+        SchoolDto schoolDto = directorService.removeDirectorFromSchool(schoolId);
+        return ResponseEntity.ok(schoolDto);
+    }
+
+
     @DeleteMapping("/id={id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> deleteDirectorId(@PathVariable("id") Long id) {

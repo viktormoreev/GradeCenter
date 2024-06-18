@@ -85,6 +85,18 @@ public class DirectorServiceImpl implements DirectorService {
     }
 
     @Override
+    public SchoolDto removeDirectorFromSchool(Long schoolId) {
+        Optional<School> optionalSchool = schoolRepository.findById(schoolId);
+        if(optionalSchool.isPresent()){
+            School school = optionalSchool.get();
+            school.setDirector(null);
+            schoolRepository.save(school);
+            return entityMapper.mapToSchoolDto(schoolRepository.save(school));
+        }
+        else throw new EntityNotFoundException("School is not found exception");
+    }
+
+    @Override
     public SchoolDto addDirectorToSchool(Long directorId, Long schoolId) {
         Optional<Director> optionalDirector = directorRepository.findById(directorId);
         if(optionalDirector.isPresent()){
