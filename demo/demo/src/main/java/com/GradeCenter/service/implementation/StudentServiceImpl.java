@@ -12,6 +12,7 @@ import com.GradeCenter.repository.StudentRepository;
 import com.GradeCenter.repository.StudyGroupRepository;
 import com.GradeCenter.service.CourseService;
 import com.GradeCenter.service.StudentService;
+import com.GradeCenter.service.StudyGroupService;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -181,16 +182,29 @@ public class StudentServiceImpl implements StudentService {
 
     private void updateStudentFromDto(Student student, StudentUpdateDto studentUpdateDto) {
         if (studentUpdateDto.getClassesID() != null) {
-            StudyGroup studyGroup = studyGroupRepository.findById(studentUpdateDto.getClassesID())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid class ID"));
-            student.setClasses(studyGroup);
+            // Add the student to the class
+            Optional<StudyGroup> studyGroup = studyGroupRepository.findById(studentUpdateDto.getClassesID());
+            if (studyGroup.isPresent()) {
+                student.setClasses(studyGroup.get());
+                studyGroup.get().getStudents().add(student);
+                studyGroupRepository.save(studyGroup.get());
+
+            } else {
+                throw new IllegalArgumentException("Invalid class ID");
+            }
         } else {
             student.setClasses(null);
         }
 
         if (studentUpdateDto.getParentsID() != null) {
+            // Add the student to the parents' list of students
             List<Parent> parents = studentUpdateDto.getParentsID().stream()
                     .map(parentId -> parentRepository.findById(parentId)
+                            .map(parent -> {
+                                parent.getStudents().add(student);
+                                parentRepository.save(parent);
+                                return parent;
+                            })
                             .orElseThrow(() -> new IllegalArgumentException("Invalid parent ID")))
                     .collect(Collectors.toList());
             student.setParents(parents);
