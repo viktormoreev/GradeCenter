@@ -35,7 +35,7 @@ public class WeeklyScheduleController {
     public ResponseEntity<List<WeeklyScheduleDto>> fetchWeeklyScheduleByMe() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = jwt.getClaimAsString("sub");
-        return ResponseEntity.ok(weeklyScheduleService.fetchWeeklyScheduleByStudentId(Long.parseLong(userId)));
+        return ResponseEntity.ok(weeklyScheduleService.fetchWeeklyScheduleByStudentUserId(userId));
     }
 
     @GetMapping("/courseId={id}")

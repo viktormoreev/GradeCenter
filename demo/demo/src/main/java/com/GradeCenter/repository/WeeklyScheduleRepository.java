@@ -10,4 +10,5 @@ public interface WeeklyScheduleRepository  extends JpaRepository<WeeklySchedule,
     List<WeeklySchedule> findByCourseId(Long courseId);
     List<WeeklySchedule> findBySchoolClassId(Long studyGroupId);
     List<WeeklySchedule> findBySchoolClass_Students_Id(Long studentId);
+    List<WeeklySchedule> findBySchoolClass_Students_UserID(String userId);
 }

@@ -19,4 +19,6 @@ public interface WeeklyScheduleService {
     void deleteWeeklyScheduleById(Long id);
 
     List<WeeklyScheduleDto> fetchWeeklyScheduleByStudentId(Long id);
+
+    List<WeeklyScheduleDto> fetchWeeklyScheduleByStudentUserId(String id);
 }
