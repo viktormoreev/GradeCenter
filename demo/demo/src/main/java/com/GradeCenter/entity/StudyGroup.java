@@ -26,6 +26,4 @@ public class StudyGroup extends IdGenerator {
     @OneToMany(mappedBy = "classes")
     private List<Student> students;
 
-
-
 }

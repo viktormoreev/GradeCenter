@@ -59,7 +59,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<StudentFullReturnDto> getAllStudentsFullSchool(Long id) {
-        List<Student> students = studentRepository.findAllBySchool(id);
+        List<Student> students = studentRepository.findByClasses_School_Id(id);
 
         List<String> userIds = students.stream()
                 .map(Student::getUserID)
