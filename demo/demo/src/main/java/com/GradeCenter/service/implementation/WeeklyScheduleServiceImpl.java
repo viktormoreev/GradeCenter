@@ -94,6 +94,11 @@ public class WeeklyScheduleServiceImpl implements WeeklyScheduleService {
     }
 
     @Override
+    public List<WeeklyScheduleDto> fetchWeeklyScheduleByStudentId(Long id) {
+        return entityMapper.mapToWeeklyScheduleListDto(weeklyScheduleRepository.findBySchoolClass_Students_Id(id));
+    }
+
+    @Override
     public void deleteWeeklyScheduleById(Long id) {
         weeklyScheduleRepository.deleteById(id);
     }

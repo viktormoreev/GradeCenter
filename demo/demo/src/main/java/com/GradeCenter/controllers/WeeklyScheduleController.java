@@ -1,11 +1,15 @@
 package com.GradeCenter.controllers;
 
 import com.GradeCenter.dtos.CreateWeeklyScheduleDto;
+import com.GradeCenter.dtos.ParentDto;
 import com.GradeCenter.dtos.WeeklyScheduleDto;
 import com.GradeCenter.service.WeeklyScheduleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +30,14 @@ public class WeeklyScheduleController {
         return ResponseEntity.ok(weeklyScheduleService.fetchAllWeeklySchedule());
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('student')")
+    public ResponseEntity<List<WeeklyScheduleDto>> fetchWeeklyScheduleByMe() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = jwt.getClaimAsString("sub");
+        return ResponseEntity.ok(weeklyScheduleService.fetchWeeklyScheduleByStudentId(Long.parseLong(userId)));
+    }
+
     @GetMapping("/courseId={id}")
     public ResponseEntity<List<WeeklyScheduleDto>> fetchWeeklyScheduleByCourseId(@PathVariable Long id) {
         return ResponseEntity.ok(weeklyScheduleService.fetchWeeklyScheduleByCourseId(id));
@@ -34,6 +46,11 @@ public class WeeklyScheduleController {
     @GetMapping("/studyGroup={id}")
     public ResponseEntity<List<WeeklyScheduleDto>> fetchWeeklyScheduleByStudyGroupId(@PathVariable Long id) {
         return ResponseEntity.ok(weeklyScheduleService.fetchWeeklyScheduleByStudyGroupId(id));
+    }
+
+    @GetMapping("/studentId={id}")
+    public ResponseEntity<List<WeeklyScheduleDto>> fetchWeeklyScheduleByStudentId(@PathVariable Long id) {
+        return ResponseEntity.ok(weeklyScheduleService.fetchWeeklyScheduleByStudentId(id));
     }
 
     @PutMapping("/updateId={id}")

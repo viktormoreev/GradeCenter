@@ -9,4 +9,5 @@ import java.util.List;
 public interface WeeklyScheduleRepository  extends JpaRepository<WeeklySchedule, Long> {
     List<WeeklySchedule> findByCourseId(Long courseId);
     List<WeeklySchedule> findBySchoolClassId(Long studyGroupId);
+    List<WeeklySchedule> findBySchoolClass_Students_Id(Long studentId);
 }
