@@ -144,25 +144,7 @@ public class KeycloakAdminClientService {
     }
 
 
-    public ApiResponse<String> deleteUser(String userId) {
-        try {
-            keycloak.realm(keycloakRealm).users().delete(userId);
-            return new ApiResponse<>(true, "User deleted successfully", null);
-        } catch (Exception e) {
-            logger.error("Error deleting user: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Failed to delete user", null);
-        }
-    }
 
-    public ApiResponse<String> deleteUserByUsername(String username) {
-        try {
-            UserRepresentation user = keycloak.realm(keycloakRealm).users().search(username).get(0);
-            return deleteUser(user.getId());
-        } catch (Exception e) {
-            logger.error("Error deleting user by username: {}", e.getMessage(), e);
-            return new ApiResponse<>(false, "Failed to delete user by username", null);
-        }
-    }
 
     public ApiResponse<String> updateUserCredentials(UserUpdateCredentialsRequest userUpdateCredentialsRequest) {
         try {

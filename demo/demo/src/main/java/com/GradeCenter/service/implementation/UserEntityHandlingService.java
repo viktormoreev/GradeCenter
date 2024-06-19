@@ -79,11 +79,9 @@ public class UserEntityHandlingService {
             List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listAll();
             List<RoleRepresentation> rolesToRemove = new ArrayList<>();
 
-            // Identify and remove current roles
             for (RoleRepresentation role : currentRoles) {
                 if (VALID_ROLES.contains(role.getName())) {
                     rolesToRemove.add(role);
-                    // Delete respective entity
                     deleteEntityForRole(userId, role.getName());
                 }
             }
@@ -92,17 +90,47 @@ public class UserEntityHandlingService {
                 userResource.roles().realmLevel().remove(rolesToRemove);
             }
 
-            // Assign new role
             RoleRepresentation newRole = keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).roles().get(newRoleName).toRepresentation();
             userResource.roles().realmLevel().add(Collections.singletonList(newRole));
 
-            // Create respective entity
             createEntityForRole(userId, newRoleName);
 
             return new ApiResponse<>(true, "Role switched successfully", null);
         } catch (Exception e) {
             logger.error("Error switching role: {}", e.getMessage(), e);
             return new ApiResponse<>(false, "Failed to switch role: " + e.getMessage(), null);
+        }
+    }
+
+    public ApiResponse<String> deleteUser(String userId) {
+        try {
+            keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().delete(userId);
+            UserResource userResource = keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().get(userId);
+            List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listAll();
+            List<RoleRepresentation> rolesToRemove = new ArrayList<>();
+
+            for (RoleRepresentation role : currentRoles) {
+                if (VALID_ROLES.contains(role.getName())) {
+                    rolesToRemove.add(role);
+                    deleteEntityForRole(userId, role.getName());
+                }
+            }
+
+            return new ApiResponse<>(true, "User deleted successfully", null);
+        } catch (Exception e) {
+            logger.error("Error deleting user: {}", e.getMessage(), e);
+            return new ApiResponse<>(false, "Failed to delete user", null);
+        }
+    }
+
+    public ApiResponse<String> deleteUserByUsername(String username) {
+        try {
+            UserRepresentation user = keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().search(username).get(0);
+
+            return deleteUser(user.getId());
+        } catch (Exception e) {
+            logger.error("Error deleting user by username: {}", e.getMessage(), e);
+            return new ApiResponse<>(false, "Failed to delete user by username", null);
         }
     }
 
@@ -119,7 +147,6 @@ public class UserEntityHandlingService {
             return new ApiResponse<>(false, "Failed to remove role", null);
         }
     }
-
 
     public ApiResponse<String> assignRoleUsername(String username, String roleName) {
         try {

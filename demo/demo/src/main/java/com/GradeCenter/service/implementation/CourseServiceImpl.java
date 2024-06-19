@@ -78,6 +78,9 @@ public class CourseServiceImpl implements CourseService {
     public List<StudentCourseDto> fetchCourseByStudentId(Long studentId) {
         Optional<Student> student = studentRepository.findById(studentId);
         if (student.isPresent()) {
+            if (student.get().getClasses() == null) {
+                return null;
+            }
             Optional<StudyGroup> studyGroup = studyGroupRepository.findById(student.get().getClasses().getId());
             if (studyGroup.isPresent()) {
                 List<Course> courses = studyGroup.get().getCourses();

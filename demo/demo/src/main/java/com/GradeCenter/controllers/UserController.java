@@ -88,7 +88,7 @@ public class UserController {
 
     @DeleteMapping("/delete-user/uid={userId}")
     public ResponseEntity<String> deleteUser(@PathVariable String userId) {
-        ApiResponse<String> response = keycloakAdminClientService.deleteUser(userId);
+        ApiResponse<String> response = userEntityHandlingService.deleteUser(userId);
         if (response.isSuccess()) {
             return ResponseEntity.ok(response.getMessage());
         } else {
@@ -98,7 +98,7 @@ public class UserController {
 
     @DeleteMapping("/delete-user/username={username}")
     public ResponseEntity<String> deleteUserByUsername(@PathVariable String username) {
-        ApiResponse<String> response = keycloakAdminClientService.deleteUserByUsername(username);
+        ApiResponse<String> response = userEntityHandlingService.deleteUserByUsername(username);
         if (response.isSuccess()) {
             return ResponseEntity.ok(response.getMessage());
         } else {
