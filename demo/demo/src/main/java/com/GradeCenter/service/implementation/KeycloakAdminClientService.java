@@ -41,8 +41,6 @@ public class KeycloakAdminClientService {
 
     private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminClientService.class);
 
-
-
     @Value("${keycloak.auth-server-url}")
     public String keycloakAdminUrl;
 
@@ -103,12 +101,11 @@ public class KeycloakAdminClientService {
             throw new RuntimeException("Failed to login user", e);
         }
     }
-    // Fetch a user with uesrname from the keycloak server
+
     public UserRepresentation getUserFromUsername(String username) {
         return keycloak.realm(keycloakRealm).users().search(username).get(0);
     }
 
-    // Fetch a user with userid from the keycloak server
     public UserRepresentation getUserFromUserID(String userId) {
         try {
             return keycloak.realm(keycloakRealm).users().get(userId).toRepresentation();
@@ -191,8 +188,6 @@ public class KeycloakAdminClientService {
         }
     }
 
-
-
     public ApiResponse<UserInfoResponse> getUserInfo(Jwt jwt) {
         String username = jwt.getClaimAsString("preferred_username");
         String userId = jwt.getClaimAsString("sub");
@@ -236,7 +231,6 @@ public class KeycloakAdminClientService {
         }
     }
 
-
     public List<UserRepresentation> getUsersFromIDs(List<String> userIds) {
         return userIds.parallelStream()
                 .map(userId -> {
@@ -250,8 +244,6 @@ public class KeycloakAdminClientService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
-
-
 
     private String extractUserIdFromLocationHeader(URI location) {
         if (location != null) {

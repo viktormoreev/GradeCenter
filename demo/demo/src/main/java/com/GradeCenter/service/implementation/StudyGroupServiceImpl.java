@@ -50,7 +50,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
             newStudyGroup.setSchool(school);
             newStudyGroup.setStudents(new ArrayList<>());
             schoolRepository.save(school);
-            return ConvertToDto(newStudyGroup);
+            return ConvertToDto(studyGroupRepository.save(newStudyGroup));
         }
         throw new EntityNotFoundException("School is not found");
     }
