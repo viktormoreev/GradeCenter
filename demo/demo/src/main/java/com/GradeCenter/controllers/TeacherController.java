@@ -89,6 +89,17 @@ public class TeacherController {
         }
     }
 
+    @PatchMapping("/remove-teacher-school/id={id}")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<String> removeTeacherFromSchool(@PathVariable("id") Long id) {
+        boolean isDeleted = teacherService.removeTeacherFromSchool(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("Teacher removed from school successfully");
+        } else {
+            return ResponseEntity.status(404).body("Failed to remove teacher from school");
+        }
+    }
+
     @PutMapping("/id={id}")
     //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<TeacherDto> updateTeacherID(@PathVariable("id") Long id, @RequestBody TeacherUpdateDto teacherUpdateDto) {

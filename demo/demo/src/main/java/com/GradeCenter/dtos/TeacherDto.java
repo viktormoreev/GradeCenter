@@ -13,7 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 public class TeacherDto {
     private String userID;
+    private Long id;
     private List<Long> courseIds;
+    private String username;
     private Long schoolId;
     private List<Long> qualificationsIds;
 }

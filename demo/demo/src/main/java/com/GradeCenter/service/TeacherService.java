@@ -24,5 +24,5 @@ public interface TeacherService {
 
     TeacherDto updateTeacherUID(String userID, TeacherUpdateDto teacherUpdateDto);
 
-
+    boolean removeTeacherFromSchool(Long id);
 }

@@ -51,6 +51,8 @@ public class EntityMapper {
 
     public TeacherDto mapToTeacherDto(Teacher teacher){
         TeacherDto teacherDto = new TeacherDto();
+        teacherDto.setId(teacher.getId());
+        teacherDto.setUsername(keycloakAdminClientService.getUserFromUserID(teacher.getUserID()).getUsername());
         teacherDto.setUserID(teacher.getUserID());
         if (teacher.getCourses() != null){
             teacherDto.setCourseIds(teacher.getCourses().stream().map(course -> course.getId()).collect(Collectors.toList()));

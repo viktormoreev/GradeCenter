@@ -94,6 +94,22 @@ public class TeacherServiceImpl implements TeacherService {
         return null;
     }
 
+    @Override
+    public boolean removeTeacherFromSchool(Long id) {
+        Optional<Teacher> teacherOpt = teacherRepository.findById(id);
+        if (teacherOpt.isEmpty()) {
+            return false;
+        }
+        Teacher teacher = teacherOpt.get();
+        School school = teacher.getSchool();
+        if (school != null) {
+            school.getTeachers().remove(teacher);
+            teacher.setSchool(null);
+            schoolRepository.save(school);
+            teacherRepository.save(teacher);
+        }
+        return true;
+    }
 
 
     @Override
@@ -112,13 +128,14 @@ public class TeacherServiceImpl implements TeacherService {
                 .orElse(null);
     }
 
+
     private void updateTeacherFromDto(Teacher teacher, TeacherUpdateDto teacherUpdateDto) {
         if (teacherUpdateDto.getSchoolId() != null) {
             School school = schoolRepository.findById(teacherUpdateDto.getSchoolId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid school ID"));
             teacher.setSchool(school);
-        } else {
-            teacher.setSchool(null);
+            school.getTeachers().add(teacher);
+            schoolRepository.save(school);
         }
 
         if (teacherUpdateDto.getCourseIds() != null) {
@@ -127,7 +144,9 @@ public class TeacherServiceImpl implements TeacherService {
                             .orElseThrow(() -> new IllegalArgumentException("Invalid course ID")))
                     .collect(Collectors.toList());
             teacher.setCourses(courses);
-        } else {
+            courses.forEach(course -> {if (!course.getTeachers().contains(teacher)) course.getTeachers().add(teacher);});
+            courseRepository.saveAll(courses);
+        } else if (teacherUpdateDto.getCourseIds().isEmpty()) {
             teacher.setCourses(null);
         }
 
@@ -137,8 +156,11 @@ public class TeacherServiceImpl implements TeacherService {
                             .orElseThrow(() -> new IllegalArgumentException("Invalid qualification ID")))
                     .collect(Collectors.toList());
             teacher.setQualifications(qualifications);
-        } else {
+            qualifications.forEach(qualification -> {if (!qualification.getTeachers().contains(teacher)) qualification.getTeachers().add(teacher);});
+            qualificationRepository.saveAll(qualifications);
+        } else if (teacherUpdateDto.getQualificationsIds().isEmpty()) {
             teacher.setQualifications(null);
+
         }
     }
 }
