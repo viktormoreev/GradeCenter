@@ -1,18 +1,25 @@
 package com.GradeCenter.service.implementation;
 
+import com.GradeCenter.dtos.StudentCourseDto;
+import com.GradeCenter.dtos.StudentFullReturnDto;
 import com.GradeCenter.dtos.StudyGroupCreateRequest;
 import com.GradeCenter.dtos.StudyGroupDto;
 import com.GradeCenter.entity.School;
+import com.GradeCenter.entity.Student;
 import com.GradeCenter.entity.StudyGroup;
 import com.GradeCenter.mapper.EntityMapper;
 import com.GradeCenter.repository.SchoolRepository;
 import com.GradeCenter.repository.StudyGroupRepository;
+import com.GradeCenter.service.CourseService;
 import com.GradeCenter.service.StudyGroupService;
 import jakarta.persistence.EntityNotFoundException;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StudyGroupServiceImpl implements StudyGroupService {
@@ -24,6 +31,12 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     @Autowired
     private SchoolRepository schoolRepository;
 
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private KeycloakAdminClientService keycloakAdminClientService;
+
     @Override
     public StudyGroupDto saveStudyGroupInSchool(StudyGroupCreateRequest studyGroup) {
         Optional<School> optionalSchool = schoolRepository.findById(studyGroup.getSchoolId());
@@ -33,22 +46,21 @@ public class StudyGroupServiceImpl implements StudyGroupService {
             newStudyGroup.setName(studyGroup.getName());
             school.getStudyGroups().add(newStudyGroup);
             schoolRepository.save(school);
-            return entityMapper.mapToStudyGroupDto(studyGroupRepository.save(newStudyGroup));
-
+            return ConvertToDto(newStudyGroup);
         }
         throw new EntityNotFoundException("School is not found");
     }
 
     @Override
     public List<StudyGroupDto> fetchStudyGroups() {
-        return entityMapper.mapToStudyGroupDtoList(studyGroupRepository.findAll());
+        return ConvertToDtoList(studyGroupRepository.findAll());
     }
 
     @Override
     public StudyGroupDto fetchStudyGroupById(Long studyGroupId) {
         Optional<StudyGroup> studyGroup = studyGroupRepository.findById(studyGroupId);
         if(studyGroup.isPresent()){
-            return entityMapper.mapToStudyGroupDto(studyGroup.get());
+            return ConvertToDto(studyGroup.get());
         }
         else throw new EntityNotFoundException("Study group is not found");
     }
@@ -57,7 +69,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public StudyGroupDto updateStudyGroupById(Long studyGroupId) {
         Optional<StudyGroup> studyGroup = studyGroupRepository.findById(studyGroupId);
         if(studyGroup.isPresent()){
-            return entityMapper.mapToStudyGroupDto(studyGroup.get());
+            return ConvertToDto(studyGroup.get());
         }
         else throw new EntityNotFoundException("Study group is not found");
     }
@@ -71,8 +83,30 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public List<StudyGroupDto> fetchStudyGroupsBySchoolId(Long schoolId) {
         Optional<School> school = schoolRepository.findById(schoolId);
         if(school.isPresent()){
-            return entityMapper.mapToStudyGroupDtoList(school.get().getStudyGroups());
+            return ConvertToDtoList(school.get().getStudyGroups());
         }
         return null;
+    }
+
+    private StudyGroupDto ConvertToDto(StudyGroup studyGruop){
+        List<Student> students = studyGruop.getStudents();
+        List<String> userIds = studyGruop.getStudents().stream()
+                .map(Student::getUserID)
+                .collect(Collectors.toList());
+
+        Map<String, UserRepresentation> keycloakUserMap = keycloakAdminClientService.getUsersFromIDs(userIds).stream()
+                .collect(Collectors.toMap(UserRepresentation::getId, user -> user));
+
+        Map<Long, List<StudentCourseDto>> studentCoursesMap = students.stream()
+                .collect(Collectors.toMap(Student::getId, student -> courseService.fetchCourseByStudentId(student.getId())));
+
+        List<StudentFullReturnDto> fullStudents = entityMapper.mapToStudentFullReturnDtoList(students, keycloakUserMap, studentCoursesMap);
+        return entityMapper.mapToStudyGroupDto(studyGruop, fullStudents);
+    }
+
+    private List<StudyGroupDto> ConvertToDtoList(List<StudyGroup> studyGroups){
+        return studyGroups.stream()
+                .map(this::ConvertToDto)
+                .collect(Collectors.toList());
     }
 }

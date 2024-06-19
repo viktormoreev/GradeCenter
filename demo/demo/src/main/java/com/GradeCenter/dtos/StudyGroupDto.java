@@ -1,6 +1,7 @@
 package com.GradeCenter.dtos;
 
 import com.GradeCenter.entity.Course;
+import com.GradeCenter.entity.School;
 import com.GradeCenter.entity.Student;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,8 @@ import java.util.List;
 public class StudyGroupDto {
     private Long id;
     private String name;
-    private List<StudentDto> students;
+    private Long schoolId;
+    private String schoolName;
+    private List<StudentFullReturnDto> students;
     private List<CourseDto> courses;
 }

@@ -212,16 +212,25 @@ public class EntityMapper {
         return schoolList.stream().map(this::mapToSchoolDto).collect(Collectors.toList());
     }
 
-    public StudyGroupDto mapToStudyGroupDto(StudyGroup studyGroup){
+    public StudyGroupDto mapToStudyGroupDto(StudyGroup studyGroup, List<StudentFullReturnDto> students){
+
         StudyGroupDto studyGroupDto = new StudyGroupDto();
-        modelMapper.map(studyGroup, studyGroupDto);
+        studyGroupDto.setId(studyGroup.getId());
+        studyGroupDto.setName(studyGroup.getName());
+        if (studyGroup.getSchool() != null){
+            studyGroupDto.setSchoolId(studyGroup.getSchool().getId());
+            studyGroupDto.setSchoolName(studyGroup.getSchool().getName());
+        }
+        studyGroupDto.setStudents(students);
+        if (studyGroup.getCourses() != null){
+            studyGroupDto.setCourses(mapToCourseListDto(studyGroup.getCourses()));
+        }
+
 
         return studyGroupDto;
     }
 
-    public List<StudyGroupDto> mapToStudyGroupDtoList(List<StudyGroup> studyGroupList){
-        return studyGroupList.stream().map(this::mapToStudyGroupDto).collect(Collectors.toList());
-    }
+
     public List<AbsenceDto> mapToAbsenceListDto(List<Absence> absenceList){
         return absenceList.stream().map(this::mapToAbsenceDto).collect(Collectors.toList());
     }
