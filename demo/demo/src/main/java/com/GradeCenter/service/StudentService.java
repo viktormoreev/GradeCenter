@@ -25,7 +25,7 @@ public interface StudentService {
 
     StudentFullReturnDto getFullStudentById(Long id);
 
-    StudentDto addStudentToStudyGroup(Long studyGroupId, String userID);
+    StudentDto addStudentToStudyGroup(Long studyGroupId, Long studentId);
 
     List<StudentFullReturnDto> getAllStudentsFullSchool(Long id);
 }

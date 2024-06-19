@@ -26,6 +26,7 @@ public class EntityMapper {
 
     public StudentDto mapToStudentDto(Student student){
         StudentDto studentDto = new StudentDto();
+//        studentDto.setId(student.getId());
         studentDto.setUserID(student.getUserID());
         if (student.getParents() != null){
             studentDto.setParentsID(student.getParents().stream().map(parent -> parent.getId()).collect(Collectors.toList()));
