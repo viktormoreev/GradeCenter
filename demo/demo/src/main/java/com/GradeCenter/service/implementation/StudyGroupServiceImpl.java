@@ -16,6 +16,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,9 +44,11 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         Optional<School> optionalSchool = schoolRepository.findById(studyGroup.getSchoolId());
         if(optionalSchool.isPresent()){
             School school = optionalSchool.get();
-            StudyGroup newStudyGroup= new StudyGroup();
+            StudyGroup newStudyGroup = new StudyGroup();
             newStudyGroup.setName(studyGroup.getName());
             school.getStudyGroups().add(newStudyGroup);
+            newStudyGroup.setSchool(school);
+            newStudyGroup.setStudents(new ArrayList<>());
             schoolRepository.save(school);
             return ConvertToDto(newStudyGroup);
         }
@@ -88,9 +92,10 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         return null;
     }
 
-    private StudyGroupDto ConvertToDto(StudyGroup studyGruop){
-        List<Student> students = studyGruop.getStudents();
-        List<String> userIds = studyGruop.getStudents().stream()
+    private StudyGroupDto ConvertToDto(StudyGroup studyGroup){
+        List<Student> students = studyGroup.getStudents();
+
+        List<String> userIds = studyGroup.getStudents().stream()
                 .map(Student::getUserID)
                 .collect(Collectors.toList());
 
@@ -101,7 +106,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
                 .collect(Collectors.toMap(Student::getId, student -> courseService.fetchCourseByStudentId(student.getId())));
 
         List<StudentFullReturnDto> fullStudents = entityMapper.mapToStudentFullReturnDtoList(students, keycloakUserMap, studentCoursesMap);
-        return entityMapper.mapToStudyGroupDto(studyGruop, fullStudents);
+        return entityMapper.mapToStudyGroupDto(studyGroup, fullStudents);
     }
 
     private List<StudyGroupDto> ConvertToDtoList(List<StudyGroup> studyGroups){
