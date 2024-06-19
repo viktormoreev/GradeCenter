@@ -122,7 +122,9 @@ public class EntityMapper {
 
     private FetchStudentDto mapToFetchstudentDto(Student student) {
         FetchStudentDto fetchStudentDto = new FetchStudentDto();
-        fetchStudentDto.setStudyGroupName(student.getClasses().getName());
+        if (student.getClasses() != null){
+            fetchStudentDto.setStudyGroupName(student.getClasses().getName());
+        }
         fetchStudentDto.setStudentId(student.getId());
         fetchStudentDto.setName(keycloakAdminClientService.getUserFromUserID(student.getUserID()).getUsername());
         return fetchStudentDto;
@@ -307,11 +309,21 @@ public class EntityMapper {
 
     public FetchTeacherDto mapToFetchTeacherDto(Teacher teacher) {
         FetchTeacherDto fetchTeacherDto = new FetchTeacherDto();
-        fetchTeacherDto.setCourses(mapToCourseListDto(teacher.getCourses()));
-        fetchTeacherDto.setQualifications(mapToQualificationListDto(teacher.getQualifications()));
+        if (teacher.getCourses() != null){
+            fetchTeacherDto.setCourses(mapToCourseListDto(teacher.getCourses()));
+        }
+        if (teacher.getQualifications() != null){
+            fetchTeacherDto.setQualifications(mapToQualificationListDto(teacher.getQualifications()));
+        }
         fetchTeacherDto.setId(teacher.getId());
-        fetchTeacherDto.setName(keycloakAdminClientService.getUserFromUserID(teacher.getUserID()).getUsername());
-        fetchTeacherDto.setSchoolName(teacher.getSchool().getName());
+        UserRepresentation user = keycloakAdminClientService.getUserFromUserID(teacher.getUserID());
+        if (user != null) {
+            fetchTeacherDto.setName(user.getUsername());
+        }
+        if (teacher.getSchool() != null){
+            fetchTeacherDto.setSchoolName(teacher.getSchool().getName());
+        }
+
         return fetchTeacherDto;
     }
 
