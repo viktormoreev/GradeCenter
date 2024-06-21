@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class AbsenceDto {
     private Long studentId;
+    private Long absenceId;
     private Long courseId;
     private LocalDate date;
 }

@@ -179,8 +179,13 @@ public class EntityMapper {
 
     public AbsenceDto mapToAbsenceDto(Absence absence){
         AbsenceDto absenceDto = new AbsenceDto();
-        absenceDto.setCourseId(absence.getCourse().getId());
-        absenceDto.setStudentId(absence.getStudent().getId());
+        absenceDto.setAbsenceId(absence.getId());
+        if (absence.getCourse() != null){
+            absenceDto.setCourseId(absence.getCourse().getId());
+        }
+        if (absence.getStudent() != null) {
+            absenceDto.setStudentId(absence.getStudent().getId());
+        }
         absenceDto.setDate(absence.getDate());
         return absenceDto;
     }
@@ -308,7 +313,6 @@ public class EntityMapper {
         return courseTypeDto;
 
     }
-
 
     public WeeklyScheduleDto mapToWeeklyScheduleDto(WeeklySchedule weeklySchedule) {
         WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
