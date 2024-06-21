@@ -254,6 +254,7 @@ public class EntityMapper {
 
     public GradeDto mapToGradeDto(Grade grade) {
         return new GradeDto(
+                grade.getId(),
                 grade.getGrade(),
                 grade.getStudent().getId(),
                 grade.getCourse().getId()

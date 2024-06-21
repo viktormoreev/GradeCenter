@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GradeDto {
+    private Long id;
     private Double grade;
     private Long studentId;
     private Long courseId;
