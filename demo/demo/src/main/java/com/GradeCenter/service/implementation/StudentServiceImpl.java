@@ -135,8 +135,11 @@ public class StudentServiceImpl implements StudentService {
                 .collect(Collectors.toMap(UserRepresentation::getId, user -> user));
 
         Map<Long, List<StudentCourseDto>> studentCoursesMap = students.stream()
-                .collect(Collectors.toMap(Student::getId, student -> courseService.fetchCourseByStudentId(student.getId())));
-
+                .collect(Collectors.toMap(
+                        Student::getId,
+                        student -> Optional.ofNullable(courseService.fetchCourseByStudentId(student.getId()))
+                                .orElse(Collections.emptyList())
+                ));
         return entityMapper.mapToStudentFullReturnDtoList(students, keycloakUserMap, studentCoursesMap);
     }
 
