@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class StudentCourseDto {
     private String name;
+    private Long courseId;
     private List<AbsenceDto> absences;
     private List<SmallGradeDto> grades;
 

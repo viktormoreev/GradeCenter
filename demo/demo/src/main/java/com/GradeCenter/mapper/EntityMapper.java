@@ -99,7 +99,7 @@ public class EntityMapper {
         if (student.getClasses() != null){
             studentFullDto.setGrade(student.getClasses().getName());
             studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
-            
+
         }
 
         studentFullDto.setAbsences(courses.stream().mapToInt(course -> course.getAbsences().size()).sum());
@@ -286,6 +286,7 @@ public class EntityMapper {
 
     public StudentCourseDto mapToStudentCourseDto(Course course, Long studentId) {
         StudentCourseDto studentCourseDto = new StudentCourseDto();
+        studentCourseDto.setCourseId(course.getId());
         studentCourseDto.setAbsences(mapToAbsenceDtoList(course.getAbsences().stream().filter(absence -> absence.getStudent().getId().equals(studentId)).collect(Collectors.toList())));
         studentCourseDto.setGrades(mapToSmallGradeDtoList(course.getGrades().stream().filter(grade -> grade.getStudent().getId().equals(studentId)).collect(Collectors.toList())));
         studentCourseDto.setName(course.getName());
