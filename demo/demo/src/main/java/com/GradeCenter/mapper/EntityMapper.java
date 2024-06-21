@@ -96,8 +96,12 @@ public class EntityMapper {
         }
 
         studentFullDto.setCourses(courses);
-        studentFullDto.setGrade(student.getClasses().getName());
-        studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
+        if (student.getClasses() != null){
+            studentFullDto.setGrade(student.getClasses().getName());
+            studentFullDto.setSchool(student.getClasses() != null ? student.getClasses().getName() : null);
+            
+        }
+
         studentFullDto.setAbsences(courses.stream().mapToInt(course -> course.getAbsences().size()).sum());
 
         List<String> parentIDs = student.getParents().stream()
