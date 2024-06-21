@@ -17,5 +17,6 @@ public class FetchTeacherDto {
     private String name;
     private List<CourseDto> courses;
     private String schoolName;
+    private Long schoolId;
     private List<QualificationDto> qualifications;
 }

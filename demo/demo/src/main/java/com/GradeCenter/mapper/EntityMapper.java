@@ -90,7 +90,6 @@ public class EntityMapper {
         StudentFullReturnDto studentFullDto = new StudentFullReturnDto();
         studentFullDto.setId(student.getId());
 
-        // Fetch username from Keycloak user representation
         UserRepresentation keycloakUser = keycloakUserMap.get(student.getUserID());
         if (keycloakUser != null) {
             studentFullDto.setUsername(keycloakUser.getUsername());
@@ -332,6 +331,7 @@ public class EntityMapper {
         }
         if (teacher.getSchool() != null){
             fetchTeacherDto.setSchoolName(teacher.getSchool().getName());
+            fetchTeacherDto.setSchoolId(teacher.getSchool().getId());
         }
 
         return fetchTeacherDto;

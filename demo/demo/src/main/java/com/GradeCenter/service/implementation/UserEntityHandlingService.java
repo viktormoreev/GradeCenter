@@ -104,7 +104,6 @@ public class UserEntityHandlingService {
 
     public ApiResponse<String> deleteUser(String userId) {
         try {
-            keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().delete(userId);
             UserResource userResource = keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().get(userId);
             List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listAll();
 
@@ -116,6 +115,8 @@ public class UserEntityHandlingService {
                     deleteEntityForRole(userId, role.getName());
                 }
             }
+
+            keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().delete(userId);
 
             return new ApiResponse<>(true, "User deleted successfully", null);
         } catch (Exception e) {

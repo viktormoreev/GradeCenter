@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,7 +71,11 @@ public class StudentServiceImpl implements StudentService {
                 .collect(Collectors.toMap(UserRepresentation::getId, user -> user));
 
         Map<Long, List<StudentCourseDto>> studentCoursesMap = students.stream()
-                .collect(Collectors.toMap(Student::getId, student -> courseService.fetchCourseByStudentId(student.getId())));
+                .collect(Collectors.toMap(
+                        Student::getId,
+                        student -> Optional.ofNullable(courseService.fetchCourseByStudentId(student.getId()))
+                                .orElse(Collections.emptyList())
+                ));
 
         return entityMapper.mapToStudentFullReturnDtoList(students, keycloakUserMap, studentCoursesMap);
     }
