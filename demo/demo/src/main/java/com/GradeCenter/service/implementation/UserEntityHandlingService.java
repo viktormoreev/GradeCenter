@@ -107,11 +107,12 @@ public class UserEntityHandlingService {
             keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().delete(userId);
             UserResource userResource = keycloakAdminClientService.keycloak.realm(keycloakAdminClientService.keycloakRealm).users().get(userId);
             List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listAll();
-            List<RoleRepresentation> rolesToRemove = new ArrayList<>();
 
             for (RoleRepresentation role : currentRoles) {
+
+                logger.info("Role: {}", role.getName());
                 if (VALID_ROLES.contains(role.getName())) {
-                    rolesToRemove.add(role);
+                    logger.info("Deleting entity for role: {}", role.getName());
                     deleteEntityForRole(userId, role.getName());
                 }
             }
