@@ -17,5 +17,5 @@ public interface AbsenceService {
     List<AbsenceDto> getAllAbsencesByStudentIdForAdmin(long studentId) throws StudentNotFoundException;
     boolean deleteAbsenceById(Long id);
     AbsenceDto updateAbsence(Long id, AbsenceDto absenceDto) throws StudentNotFoundException, CourseNotFoundException, AbsenceNotFoundException;
-    List<AbsenceTeacherViewDto> getTeacherViewAbsencesByStudentId(long studentId);
+    List<AbsenceTeacherViewDto> getTeacherViewAbsencesByStudentId(long studentId) throws AbsenceNotFoundException;
 }

@@ -84,7 +84,7 @@ public class AbsenceController {
 
     @GetMapping("/teacher/student/{studentId}")
     @PreAuthorize("hasAnyRole('admin', 'director', 'teacher')")
-    public ResponseEntity<List<AbsenceTeacherViewDto>> getTeacherViewAbsencesByStudentId(@PathVariable long studentId) {
+    public ResponseEntity<List<AbsenceTeacherViewDto>> getTeacherViewAbsencesByStudentId(@PathVariable long studentId) throws AbsenceNotFoundException {
         List<AbsenceTeacherViewDto> absences = absenceService.getTeacherViewAbsencesByStudentId(studentId);
         if (absences.isEmpty()) {
             return ResponseEntity.notFound().build();

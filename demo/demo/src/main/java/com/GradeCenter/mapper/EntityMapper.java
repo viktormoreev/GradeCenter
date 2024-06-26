@@ -367,6 +367,25 @@ public class EntityMapper {
         return schools.stream().map(this::mapToSchoolNamesDto).collect(Collectors.toList());
     }
 
+    public AbsenceTeacherViewDto mapToAbsenceTeacherViewDto(Absence absence) {
+        AbsenceTeacherViewDto dto = new AbsenceTeacherViewDto();
+        dto.setCourseName(absence.getCourse() != null ? absence.getCourse().getName() : null);
+        dto.setDate(absence.getDate());
+
+        if (absence.getStudent() != null) {
+            UserRepresentation user = keycloakAdminClientService.getUserFromUserID(absence.getStudent().getUserID());
+            dto.setStudentName(user != null ? user.getUsername() : null);
+        }
+
+        return dto;
+    }
+
+    public List<AbsenceTeacherViewDto> mapToAbsenceTeacherViewDtoList(List<Absence> absences) {
+        return absences.stream()
+                .map(this::mapToAbsenceTeacherViewDto)
+                .collect(Collectors.toList());
+    }
+
 
 
 

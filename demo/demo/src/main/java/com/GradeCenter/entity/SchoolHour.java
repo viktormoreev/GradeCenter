@@ -11,8 +11,8 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor // Make no-args constructor protected
-@AllArgsConstructor // Make all-args constructor private
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Table(name = "school_hours")
 public class SchoolHour extends IdGenerator {

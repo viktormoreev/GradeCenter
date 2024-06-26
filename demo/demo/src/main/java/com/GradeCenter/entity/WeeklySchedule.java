@@ -7,8 +7,8 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // Make no-args constructor protected
-@AllArgsConstructor(access = AccessLevel.PRIVATE) // Make all-args constructor private
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Table(name = "weekly_schedule")
 public class WeeklySchedule extends IdGenerator{

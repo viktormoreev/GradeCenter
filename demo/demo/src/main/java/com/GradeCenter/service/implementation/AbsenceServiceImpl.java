@@ -130,18 +130,16 @@ public class AbsenceServiceImpl implements AbsenceService {
         return entityMapper.mapToAbsenceDto(updatedAbsence);
     }
 
+
+
     @Override
-    public List<AbsenceTeacherViewDto> getTeacherViewAbsencesByStudentId(long studentId) {
-        return absenceRepository.findByStudentId(studentId)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(absence -> {
-                    final String studentUserId = absence.getStudent().getUserID();
-                    final UserRepresentation userRepresentation = keycloakAdminClientService.getUserFromUserID(studentUserId);
-                    final String studentName = userRepresentation.getUsername();
-                    final String courseName = absence.getCourse().getName();
-                    return new AbsenceTeacherViewDto(studentName, courseName, absence.getDate());
-                })
-                .collect(Collectors.toList());
+    public List<AbsenceTeacherViewDto> getTeacherViewAbsencesByStudentId(long studentId) throws AbsenceNotFoundException {
+        Optional<List<Absence>> absences = absenceRepository.findByStudentId(studentId);
+        if(absences.isEmpty()){
+            throw new AbsenceNotFoundException("Absences not found for student with id: " + studentId);
+        }
+
+
+        return entityMapper.mapToAbsenceTeacherViewDtoList(absences.get());
     }
 }
