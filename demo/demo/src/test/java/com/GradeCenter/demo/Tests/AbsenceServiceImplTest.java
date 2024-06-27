@@ -52,16 +52,13 @@ class AbsenceServiceImplTest {
 
     @Test
     void getAllAbsences_shouldReturnAllAbsences() {
-        // Arrange
         List<Absence> absences = Arrays.asList(new Absence(), new Absence());
         List<AbsenceDto> absenceDtos = Arrays.asList(new AbsenceDto(), new AbsenceDto());
         when(absenceRepository.findAll()).thenReturn(absences);
         when(entityMapper.mapToAbsenceListDto(absences)).thenReturn(absenceDtos);
 
-        // Act
         List<AbsenceDto> result = absenceService.getAllAbsences();
 
-        // Assert
         assertEquals(absenceDtos, result);
         verify(absenceRepository).findAll();
         verify(entityMapper).mapToAbsenceListDto(absences);
@@ -69,7 +66,6 @@ class AbsenceServiceImplTest {
 
     @Test
     void createAbsence_shouldCreateAndReturnAbsence() throws StudentNotFoundException, CourseNotFoundException {
-        // Arrange
         AbsenceDto absenceDto = new AbsenceDto(1L, null, 1L, LocalDate.now());
         Student student = new Student();
         Course course = new Course();
@@ -83,10 +79,8 @@ class AbsenceServiceImplTest {
         when(absenceRepository.save(absence)).thenReturn(savedAbsence);
         when(entityMapper.mapToAbsenceDto(savedAbsence)).thenReturn(savedAbsenceDto);
 
-        // Act
         AbsenceDto result = absenceService.createAbsence(absenceDto);
 
-        // Assert
         assertEquals(savedAbsenceDto, result);
         verify(studentRepository).findById(1L);
         verify(courseRepository).findById(1L);
@@ -97,7 +91,6 @@ class AbsenceServiceImplTest {
 
     @Test
     void getPersonalStudentAbsences_shouldReturnAbsencesForStudent() throws StudentNotFoundException {
-        // Arrange
         String userId = "user123";
         Student student = new Student();
         student.setId(1L);
@@ -108,10 +101,8 @@ class AbsenceServiceImplTest {
         when(absenceRepository.findByStudentId(1L)).thenReturn(Optional.of(absences));
         when(entityMapper.mapToAbsenceStudentViewDto(any(Absence.class))).thenReturn(new AbsenceStudentViewDto());
 
-        // Act
         List<AbsenceStudentViewDto> result = absenceService.getPersonalStudentAbsences(userId);
 
-        // Assert
         assertEquals(2, result.size());
         verify(studentRepository).findByUserID(userId);
         verify(absenceRepository).findByStudentId(1L);
@@ -120,7 +111,6 @@ class AbsenceServiceImplTest {
 
     @Test
     void getAllAbsencesByStudentIdForAdmin_shouldReturnAbsences() throws StudentNotFoundException {
-        // Arrange
         long studentId = 1L;
         List<Absence> absences = Arrays.asList(new Absence(), new Absence());
         List<AbsenceDto> absenceDtos = Arrays.asList(new AbsenceDto(), new AbsenceDto());
@@ -129,10 +119,8 @@ class AbsenceServiceImplTest {
         when(absenceRepository.findByStudentId(studentId)).thenReturn(Optional.of(absences));
         when(entityMapper.mapToAbsenceDto(any(Absence.class))).thenReturn(new AbsenceDto());
 
-        // Act
         List<AbsenceDto> result = absenceService.getAllAbsencesByStudentIdForAdmin(studentId);
 
-        // Assert
         assertEquals(2, result.size());
         verify(studentRepository).existsById(studentId);
         verify(absenceRepository).findByStudentId(studentId);
@@ -141,25 +129,20 @@ class AbsenceServiceImplTest {
 
     @Test
     void getAllAbsencesByStudentIdForAdmin_shouldThrowExceptionWhenStudentNotFound() {
-        // Arrange
         long studentId = 1L;
         when(studentRepository.existsById(studentId)).thenReturn(false);
 
-        // Act & Assert
         assertThrows(StudentNotFoundException.class, () -> absenceService.getAllAbsencesByStudentIdForAdmin(studentId));
         verify(studentRepository).existsById(studentId);
     }
 
     @Test
     void deleteAbsenceById_shouldReturnTrueWhenAbsenceExists() {
-        // Arrange
         Long absenceId = 1L;
         when(absenceRepository.existsById(absenceId)).thenReturn(true);
 
-        // Act
         boolean result = absenceService.deleteAbsenceById(absenceId);
 
-        // Assert
         assertTrue(result);
         verify(absenceRepository).existsById(absenceId);
         verify(absenceRepository).deleteById(absenceId);
@@ -167,14 +150,11 @@ class AbsenceServiceImplTest {
 
     @Test
     void deleteAbsenceById_shouldReturnFalseWhenAbsenceDoesNotExist() {
-        // Arrange
         Long absenceId = 1L;
         when(absenceRepository.existsById(absenceId)).thenReturn(false);
 
-        // Act
         boolean result = absenceService.deleteAbsenceById(absenceId);
 
-        // Assert
         assertFalse(result);
         verify(absenceRepository).existsById(absenceId);
         verify(absenceRepository, never()).deleteById(absenceId);
@@ -182,7 +162,7 @@ class AbsenceServiceImplTest {
 
     @Test
     void updateAbsence_shouldUpdateAndReturnAbsence() throws StudentNotFoundException, CourseNotFoundException, AbsenceNotFoundException {
-        // Arrange
+
         Long absenceId = 1L;
         AbsenceDto absenceDto = new AbsenceDto(1L, absenceId, 1L, LocalDate.now());
         Absence existingAbsence = new Absence();
@@ -197,10 +177,8 @@ class AbsenceServiceImplTest {
         when(absenceRepository.save(existingAbsence)).thenReturn(updatedAbsence);
         when(entityMapper.mapToAbsenceDto(updatedAbsence)).thenReturn(updatedAbsenceDto);
 
-        // Act
         AbsenceDto result = absenceService.updateAbsence(absenceId, absenceDto);
 
-        // Assert
         assertEquals(updatedAbsenceDto, result);
         verify(absenceRepository).findById(absenceId);
         verify(studentRepository).findById(1L);
@@ -211,7 +189,6 @@ class AbsenceServiceImplTest {
 
     @Test
     void getTeacherViewAbsencesByStudentId_shouldReturnAbsences() throws AbsenceNotFoundException {
-        // Arrange
         long studentId = 1L;
         List<Absence> absences = Arrays.asList(new Absence(), new Absence());
         List<AbsenceTeacherViewDto> absenceTeacherViewDtos = Arrays.asList(new AbsenceTeacherViewDto(), new AbsenceTeacherViewDto());
@@ -219,10 +196,8 @@ class AbsenceServiceImplTest {
         when(absenceRepository.findByStudentId(studentId)).thenReturn(Optional.of(absences));
         when(entityMapper.mapToAbsenceTeacherViewDtoList(absences)).thenReturn(absenceTeacherViewDtos);
 
-        // Act
         List<AbsenceTeacherViewDto> result = absenceService.getTeacherViewAbsencesByStudentId(studentId);
 
-        // Assert
         assertEquals(absenceTeacherViewDtos, result);
         verify(absenceRepository).findByStudentId(studentId);
         verify(entityMapper).mapToAbsenceTeacherViewDtoList(absences);
