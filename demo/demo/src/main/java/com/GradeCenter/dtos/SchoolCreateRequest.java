@@ -13,3 +13,4 @@ public class SchoolCreateRequest {
     private String address;
 
 }
+

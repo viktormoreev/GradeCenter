@@ -50,14 +50,11 @@ class AbsenceControllerTest {
 
     @Test
     void getAllAbsences_shouldReturnAllAbsences() {
-        // Arrange
         List<AbsenceDto> absences = Arrays.asList(new AbsenceDto(), new AbsenceDto());
         when(absenceService.getAllAbsences()).thenReturn(absences);
 
-        // Act
         List<AbsenceDto> result = absenceController.getAllAbsences();
 
-        // Assert
         assertEquals(absences, result);
         verify(absenceService).getAllAbsences();
     }
@@ -72,10 +69,8 @@ class AbsenceControllerTest {
         when(jwt.getClaimAsString("sub")).thenReturn("user123");
         when(absenceService.getPersonalStudentAbsences("user123")).thenReturn(absences);
 
-        // Act
         ResponseEntity<List<AbsenceStudentViewDto>> response = absenceController.getPersonalStudentAbsences();
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(absences, response.getBody());
         verify(absenceService).getPersonalStudentAbsences("user123");
@@ -83,15 +78,12 @@ class AbsenceControllerTest {
 
     @Test
     void createAbsence_shouldCreateAndReturnAbsence() throws CourseNotFoundException, StudentNotFoundException {
-        // Arrange
         AbsenceDto absenceDto = new AbsenceDto(1L, null, 1L, LocalDate.now());
         AbsenceDto createdAbsence = new AbsenceDto(1L, 1L, 1L, LocalDate.now());
         when(absenceService.createAbsence(absenceDto)).thenReturn(createdAbsence);
 
-        // Act
         ResponseEntity<AbsenceDto> response = absenceController.createAbsence(absenceDto);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(createdAbsence, response.getBody());
         verify(absenceService).createAbsence(absenceDto);
@@ -99,14 +91,11 @@ class AbsenceControllerTest {
 
     @Test
     void deleteAbsenceById_shouldDeleteAbsence() {
-        // Arrange
         Long absenceId = 1L;
         when(absenceService.deleteAbsenceById(absenceId)).thenReturn(true);
 
-        // Act
         ResponseEntity<String> response = absenceController.deleteAbsenceById(absenceId);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Absence deleted successfully", response.getBody());
         verify(absenceService).deleteAbsenceById(absenceId);
@@ -114,16 +103,13 @@ class AbsenceControllerTest {
 
     @Test
     void updateAbsence_shouldUpdateAndReturnAbsence() throws AbsenceNotFoundException, StudentNotFoundException, CourseNotFoundException {
-        // Arrange
         Long absenceId = 1L;
         AbsenceDto absenceDto = new AbsenceDto(1L, 1L, 1L, LocalDate.now());
         AbsenceDto updatedAbsence = new AbsenceDto(1L, 1L, 1L, LocalDate.now().plusDays(1));
         when(absenceService.updateAbsence(absenceId, absenceDto)).thenReturn(updatedAbsence);
 
-        // Act
         ResponseEntity<AbsenceDto> response = absenceController.updateAbsence(absenceId, absenceDto);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedAbsence, response.getBody());
         verify(absenceService).updateAbsence(absenceId, absenceDto);
@@ -131,17 +117,14 @@ class AbsenceControllerTest {
 
     @Test
     void getPersonalStudentAbsences_shouldReturnNoContentWhenNoAbsences() throws StudentNotFoundException {
-        // Arrange
         Jwt jwt = mock(Jwt.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(jwt);
         when(jwt.getClaimAsString("sub")).thenReturn("user123");
         when(absenceService.getPersonalStudentAbsences("user123")).thenReturn(Collections.emptyList());
 
-        // Act
         ResponseEntity<List<AbsenceStudentViewDto>> response = absenceController.getPersonalStudentAbsences();
 
-        // Assert
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertNull(response.getBody());
         verify(absenceService).getPersonalStudentAbsences("user123");
@@ -149,15 +132,12 @@ class AbsenceControllerTest {
 
     @Test
     void getAbsencesByStudentId_shouldReturnAbsencesForStudent() throws StudentNotFoundException {
-        // Arrange
         long studentId = 1L;
         List<AbsenceDto> absences = Arrays.asList(new AbsenceDto(), new AbsenceDto());
         when(absenceService.getAllAbsencesByStudentIdForAdmin(studentId)).thenReturn(absences);
 
-        // Act
         ResponseEntity<List<AbsenceDto>> response = absenceController.getAbsencesByStudentId(studentId);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(absences, response.getBody());
         verify(absenceService).getAllAbsencesByStudentIdForAdmin(studentId);
@@ -165,14 +145,11 @@ class AbsenceControllerTest {
 
     @Test
     void getAbsencesByStudentId_shouldReturnNotFoundWhenNoAbsences() throws StudentNotFoundException {
-        // Arrange
         long studentId = 1L;
         when(absenceService.getAllAbsencesByStudentIdForAdmin(studentId)).thenReturn(Collections.emptyList());
 
-        // Act
         ResponseEntity<List<AbsenceDto>> response = absenceController.getAbsencesByStudentId(studentId);
 
-        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
         verify(absenceService).getAllAbsencesByStudentIdForAdmin(studentId);
@@ -180,14 +157,11 @@ class AbsenceControllerTest {
 
     @Test
     void deleteAbsenceById_shouldReturnNotFoundWhenAbsenceDoesNotExist() {
-        // Arrange
         Long absenceId = 1L;
         when(absenceService.deleteAbsenceById(absenceId)).thenReturn(false);
 
-        // Act
         ResponseEntity<String> response = absenceController.deleteAbsenceById(absenceId);
 
-        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Failed to delete absence", response.getBody());
         verify(absenceService).deleteAbsenceById(absenceId);
@@ -195,15 +169,13 @@ class AbsenceControllerTest {
 
     @Test
     void updateAbsence_shouldReturnNotFoundWhenAbsenceDoesNotExist() throws AbsenceNotFoundException, StudentNotFoundException, CourseNotFoundException {
-        // Arrange
+
         Long absenceId = 1L;
         AbsenceDto absenceDto = new AbsenceDto(1L, 1L, 1L, LocalDate.now());
         when(absenceService.updateAbsence(absenceId, absenceDto)).thenThrow(new AbsenceNotFoundException("Absence not found"));
 
-        // Act
         ResponseEntity<AbsenceDto> response = absenceController.updateAbsence(absenceId, absenceDto);
 
-        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
         verify(absenceService).updateAbsence(absenceId, absenceDto);
@@ -211,15 +183,12 @@ class AbsenceControllerTest {
 
     @Test
     void getTeacherViewAbsencesByStudentId_shouldReturnAbsencesForStudent() throws AbsenceNotFoundException {
-        // Arrange
         long studentId = 1L;
         List<AbsenceTeacherViewDto> absences = Arrays.asList(new AbsenceTeacherViewDto(), new AbsenceTeacherViewDto());
         when(absenceService.getTeacherViewAbsencesByStudentId(studentId)).thenReturn(absences);
 
-        // Act
         ResponseEntity<List<AbsenceTeacherViewDto>> response = absenceController.getTeacherViewAbsencesByStudentId(studentId);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(absences, response.getBody());
         verify(absenceService).getTeacherViewAbsencesByStudentId(studentId);
@@ -227,14 +196,11 @@ class AbsenceControllerTest {
 
     @Test
     void getTeacherViewAbsencesByStudentId_shouldReturnNotFoundWhenNoAbsences() throws AbsenceNotFoundException {
-        // Arrange
         long studentId = 1L;
         when(absenceService.getTeacherViewAbsencesByStudentId(studentId)).thenReturn(Collections.emptyList());
 
-        // Act
         ResponseEntity<List<AbsenceTeacherViewDto>> response = absenceController.getTeacherViewAbsencesByStudentId(studentId);
 
-        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
         verify(absenceService).getTeacherViewAbsencesByStudentId(studentId);
